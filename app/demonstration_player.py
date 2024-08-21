@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from utils.tools import resize_and_pad_to_square
 
 class DemoPlayer:
     def __init__(self, master, demo_listbox):
@@ -85,16 +86,20 @@ class DemoPlayer:
     def update_frame(self):
         if self.current_frame < self.total_frames:
             img = Image.fromarray(self.demonstration_data['frames'][self.current_frame])
+            img = resize_and_pad_to_square(img, 500)
             img = ImageTk.PhotoImage(img)
             self.playback.create_image(0, 0, anchor=tk.NW, image=img)
             self.playback.image = img
             
             self.info_text.config(state=tk.NORMAL)
             self.info_text.delete('1.0', tk.END)
-            self.info_text.insert(tk.END, f"Observation: {self.demonstration_data['observation'][self.current_frame]}\n")
+            
+            self.info_text.insert(tk.END, f"Instruction: {self.demonstration_data['instruction']}\n")
             self.info_text.insert(tk.END, f"Action: {self.demonstration_data['action'][self.current_frame]}\n")
-            self.info_text.insert(tk.END, f"Reward: {self.demonstration_data['reward'][self.current_frame]}\n")
-            self.info_text.insert(tk.END, f"Done: {self.demonstration_data['done'][self.current_frame]}")
+            self.info_text.insert(tk.END, f"Done: {self.demonstration_data['done'][self.current_frame]}\n")
+            
+            # self.info_text.insert(tk.END, f"Reward: {self.demonstration_data['reward'][self.current_frame]}\n")
+            # self.info_text.insert(tk.END, f"Observation: {self.demonstration_data['observation'][self.current_frame]}\n")
             self.info_text.config(state=tk.DISABLED)
             
             if self.is_playing:

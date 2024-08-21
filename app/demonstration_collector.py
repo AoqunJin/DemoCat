@@ -1,11 +1,15 @@
+import time
+import gc
 import tkinter as tk
 from tkinter import ttk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from utils.input_handler import InputHandler
+from utils.tools import resize_and_pad_to_square
 
 class DemonstrationCollector:
-    def __init__(self, master, env_combobox, task_combobox, env_manager, data_manager, demo_listbox):
+    def __init__(self, master, env_combobox, task_combobox, 
+                 env_manager, data_manager, demo_listbox, task_info_text):
         self.master = master
         self.demonstration_data = []  # 存储演示数据的列表
         self.is_paused = False
@@ -16,6 +20,7 @@ class DemonstrationCollector:
         self.env_manager = env_manager
         self.data_manager = data_manager
         self.demo_listbox = demo_listbox
+        self.task_info_text = task_info_text
 
         # 创建左侧面板
         left_panel = ttk.Frame(master)
@@ -35,8 +40,10 @@ class DemonstrationCollector:
         self.save_button.pack(side=tk.LEFT, padx=5)
         self.pause_button = ttk.Button(action_frame, text="Pause", command=self.pause, state=tk.DISABLED)
         self.pause_button.pack(side=tk.LEFT, padx=5)
+        self.master.bind_all("<p>", self.pause)
 
     def start_demonstration(self):
+        gc.collect()
         selected_env = self.env_combobox.get()
         selected_task = self.task_combobox.get()
         self.task = self.env_manager.create_task(selected_env, selected_task)
@@ -45,13 +52,14 @@ class DemonstrationCollector:
         self.is_paused = False
         self.save_button['state'] = tk.NORMAL
         self.pause_button['state'] = tk.NORMAL
-        self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": []}
+        self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": [], "instruction": ""}
         observation = self.task.reset()
         self.demonstration_data["observation"].append(observation)
-        self.demonstration_data["action"].append(0)  # Initial action
+        self.demonstration_data["action"].append(self.task.default_action)  # Initial action
         self.demonstration_data["reward"].append(0)
         self.demonstration_data["done"].append(False)
         self.update_display()
+        self.update_task_info()
         self.master.after(50, self.step_environment)
 
     def step_environment(self):
@@ -66,6 +74,7 @@ class DemonstrationCollector:
                 self.demonstration_data["action"].append(action)
                 self.demonstration_data["reward"].append(reward)
                 self.demonstration_data["done"].append(done)
+                self.demonstration_data['instruction'] = self.task_info_text.get("1.0", tk.END)
                 self.update_display()
 
             if done:
@@ -78,22 +87,22 @@ class DemonstrationCollector:
         img_array = self.task.render()
         self.demonstration_data["frames"].append(img_array)
         img = Image.fromarray(img_array)
+        img = resize_and_pad_to_square(img, 500)
         img = ImageTk.PhotoImage(img)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
         self.canvas.image = img
 
     def save_demonstration(self):
-        if self.demonstration_data:
-            self.is_demonstrating = False
-            self.save_button['state'] = tk.DISABLED
-            self.pause_button['state'] = tk.DISABLED
-            env_name = self.env_combobox.get()
-            task_name = self.task_combobox.get()
-            self.data_manager.save_demonstration(env_name, task_name, self.demonstration_data)
-            # self.update_demo_list(env_name, task_name)
-            messagebox.showinfo("Demonstration Saved", "Demonstration has been saved successfully.")
+        self.is_demonstrating = False
+        self.save_button['state'] = tk.DISABLED
+        self.pause_button['state'] = tk.DISABLED
+        env_name = self.env_combobox.get()
+        task_name = self.task_combobox.get()
+        self.data_manager.save_demonstration(env_name, task_name, self.demonstration_data)
+        # self.update_demo_list(env_name, task_name)
+        messagebox.showinfo("Demonstration Saved", "Demonstration has been saved successfully.")
 
-    def pause(self):
+    def pause(self, event=None):
         self.is_paused = not self.is_paused
         self.pause_button.configure(text="Continue" if self.is_paused else "Pause")
 
@@ -101,3 +110,10 @@ class DemonstrationCollector:
         self.demo_listbox.delete(0, tk.END)
         for demo in self.data_manager.get_demonstration_list():
             self.demo_listbox.insert(tk.END, demo)
+
+    def update_task_info(self):
+        info = self.task.task_description
+        self.task_info_text.config(state=tk.NORMAL)
+        self.task_info_text.delete('1.0', tk.END)
+        self.task_info_text.insert(tk.END, f"Task Instruction: \n{info}\n")
+        self.task_info_text.config(state=tk.DISABLED)

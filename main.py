@@ -2,7 +2,6 @@
 
 import tkinter as tk
 from tkinter import ttk
-from ttkthemes import ThemedTk
 
 from app.gui import ImitationLearningGUI
 from app.environment import EnvironmentManager
@@ -12,7 +11,7 @@ def main():
     root = tk.Tk()
     root.config(bg="white")
     style = ttk.Style()
-    font_settings = ("Calibri", 12)
+    font_settings = ("Helvetica", 12)
     style.configure("TButton", foreground="black", font=font_settings, bg="white")
     style.configure("TLabel", foreground="black", font=font_settings, bg="white")
     style.configure("TCombobox", foreground="black", font=font_settings, bg="white")

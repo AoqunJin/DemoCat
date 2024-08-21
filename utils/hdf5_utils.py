@@ -16,11 +16,9 @@ class HDF5DataManager:
                 demo_group = f.require_group(f"{env_name}/{task_name}/{timestamp}")
                 
                 for key, value in demo_data.items():
-                    if isinstance(value, dict):
-                        # 创建子组
-                        sub_group = demo_group.require_group(key)
-                        for sub_key, sub_value in value.items():
-                            sub_group.create_dataset(sub_key, data=np.array(sub_value), compression="gzip", chunks=True)
+                    if key == 'instruction':
+                        dt = h5py.string_dtype(encoding='utf-8')
+                        demo_group.create_dataset(key, data=value, dtype=dt,)
                     else:
                         demo_group.create_dataset(key, data=np.array(value), compression="gzip", chunks=True)
 
@@ -37,7 +35,10 @@ class HDF5DataManager:
             demo_data = {}
             demo_group = task_group[timestamp]
             for key in demo_group.keys():
-                demo_data[key] = demo_group[key][:]
+                if key == 'instruction':
+                    demo_data[key] = demo_group[key][()]
+                else:
+                    demo_data[key] = demo_group[key][:]
             for key, value in demo_group.attrs.items():
                 demo_data[key] = value
             demonstrations[f"{timestamp}"] = demo_data
@@ -61,6 +62,9 @@ class HDF5DataManager:
                             break
                         demo_list.append(f"{env_name}/{task_name}/{timestamp}")
             except FileNotFoundError as e:
+                print(e)
+                return [], 1
+            except KeyError as e:
                 print(e)
                 return [], 1
             return demo_list, (len(k) + 1) // page_size + 1

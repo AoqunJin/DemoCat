@@ -69,29 +69,31 @@ class ImitationLearningGUI:
         self.task_combobox.grid(row=0, column=3, padx=5, pady=5, sticky=tk.E)
         self.task_combobox.config(state="readonly")
 
-        # 将 left_panel 分为上下两部分
+        # 将 bottom_panel 分为两部分
         bottom_panel = ttk.Frame(self.demo_tab, width=300)
         bottom_panel.grid(row=1, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
         bottom_left_panel = ttk.Frame(bottom_panel)
         bottom_left_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.demonstration_collector = DemonstrationCollector(bottom_left_panel, self.env_combobox, self.task_combobox, self.env_manager, self.data_manager, self.demo_listbox)
-
-        # 调整右侧面板
+        
         bottom_right_panel = ttk.Frame(bottom_panel, width=40, height=60)
         bottom_right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 10), pady=10)
-
+        
         # 任务信息显示区域
         self.task_info_text = tk.Text(bottom_right_panel, height=20, width=50, font=("Calibri", 12), bd='0')
         self.task_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.task_info_text.config(state=tk.DISABLED)
+        
+        # 
+        self.demonstration_collector = DemonstrationCollector(
+            bottom_left_panel, self.env_combobox, self.task_combobox, 
+            self.env_manager, self.data_manager, self.demo_listbox, self.task_info_text
+        )
 
         # 设置默认环境值并绑定选择事件
         default_env = self.env_manager.get_available_environments()[0]
         self.env_combobox.set(default_env)
         self.env_combobox.bind("<<ComboboxSelected>>", self.update_task_combobox)
-        self.task_combobox.bind("<<ComboboxSelected>>", self.update_task_info)
         self.update_task_combobox()
 
     def create_manage_tab_widgets(self):
@@ -170,7 +172,6 @@ class ImitationLearningGUI:
         self.task_combobox['values'] = tasks
         if tasks:
             self.task_combobox.set(tasks[0])
-            self.update_task_info()
         else:
             self.task_combobox.set('')
 
@@ -183,16 +184,6 @@ class ImitationLearningGUI:
         else:
             self.task_combobox_manage.set('')
         self.update_demo_list()
-
-    def update_task_info(self, event=None):
-        selected_env = self.env_combobox.get()
-        selected_task = self.task_combobox.get()
-        if selected_env and selected_task:
-            info = self.env_manager.get_task_info(selected_env, selected_task)
-            self.task_info_text.config(state=tk.NORMAL)
-            self.task_info_text.delete('1.0', tk.END)
-            self.task_info_text.insert(tk.END, f"Task Description: {info}\n")
-            self.task_info_text.config(state=tk.DISABLED)
 
     def update_demo_list(self, event=None):
         env_name = self.env_combobox_manage.get()

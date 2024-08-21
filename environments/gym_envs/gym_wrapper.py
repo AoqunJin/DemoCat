@@ -31,6 +31,7 @@ class GymEnvWrapper(BaseEnv):
 # 示例：封装具体的Gym环境
 class CartPoleEnv(GymEnvWrapper):
     task_description = ""
+    default_action = 0
     def __init__(self):
         super().__init__('CartPole-v1')
 
@@ -46,6 +47,7 @@ class CartPoleEnv(GymEnvWrapper):
 
 class MountainCarEnv(GymEnvWrapper):
     task_description = ""
+    default_action = 2
     def __init__(self):
         super().__init__('MountainCar-v0')
 

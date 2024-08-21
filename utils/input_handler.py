@@ -1,7 +1,6 @@
 # file: utils/input_handler.py
 
-import tkinter as tk
-import gym
+import os
 
 class InputHandler:
     def __init__(self, master):
@@ -9,12 +8,12 @@ class InputHandler:
         self.key_pressed = set()
         self.mouse_position = (0, 0)
         self.mouse_clicked = False
-
+        os.system("xset r on")
         self.setup_bindings()
 
     def setup_bindings(self):
-        self.master.bind("<KeyPress>", self.on_key_press)
-        self.master.bind("<KeyRelease>", self.on_key_release)
+        self.master.bind_all("<KeyPress>", self.on_key_press)
+        self.master.bind_all("<KeyRelease>", self.on_key_release)
         self.master.bind("<Motion>", self.on_mouse_move)
         self.master.bind("<Button-1>", self.on_mouse_click)
         self.master.bind("<ButtonRelease-1>", self.on_mouse_release)
