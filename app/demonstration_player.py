@@ -37,7 +37,7 @@ class DemoPlayer:
         self.jump_to_end_button.grid(row=0, column=4, padx=5)
 
         # 信息显示框
-        self.info_text = tk.Text(master, height=4, width=70, bd='0')
+        self.info_text = tk.Text(master, height=7, width=70, bd='0')
         self.info_text.grid(row=2, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
         self.info_text.config(state=tk.DISABLED)
 
@@ -94,7 +94,7 @@ class DemoPlayer:
             self.info_text.config(state=tk.NORMAL)
             self.info_text.delete('1.0', tk.END)
             
-            self.info_text.insert(tk.END, f"Instruction: {self.demonstration_data['instruction']}\n")
+            self.info_text.insert(tk.END, f"Instruction: \n{self.demonstration_data['instruction'].decode()}\n")
             self.info_text.insert(tk.END, f"Action: {self.demonstration_data['action'][self.current_frame]}\n")
             self.info_text.insert(tk.END, f"Done: {self.demonstration_data['done'][self.current_frame]}\n")
             

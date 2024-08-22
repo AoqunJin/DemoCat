@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import cv2
 import metaworld.envs.mujoco.env_dict as _env_dict
 from ..base_env import BaseEnv
 
@@ -24,8 +25,8 @@ class MetaWorldWrapper(BaseEnv):
         elif 'd' in keys: action[0] -= 1
         if 'j' in keys: action[2] -= 1
         elif 'k' in keys: action[2] += 1
-        if 'g' in keys: action[3] += 1
-        elif 'h' in keys: action[3] -= 1
+        if 'l' in keys: action[3] += 1
+        elif 'o' in keys: action[3] -= 1
             
         obs, rew, done, info = self.env.step(action)
         
@@ -35,7 +36,10 @@ class MetaWorldWrapper(BaseEnv):
         return (obs, rew, done, truncated, info), action
 
     def render(self):
-        return self.env.sim.render(*(224, 224), mode="offscreen", camera_name="corner")[:,:,::-1]
+        camera_name="corner"  # ["behindGripper", "corner", ...]
+        img = self.env.sim.render(*(224, 224), mode="offscreen", camera_name=camera_name)[:,:,::-1]
+        if camera_name in ["behindGripper"]: img = cv2.rotate(img, cv2.ROTATE_180)
+        return img
 
     def close(self):
         self.env.close()
@@ -61,6 +65,8 @@ def generate_sequence():
     
     if random.random() < 1/6:
         seq[random.choice([0, -1])] = 'Grip Cube'
+    if random.random() < 1/6:
+        seq[random.choice([0, -1])] = 'Go Red Point'
     
     seq = [f"{i+1}. " + s for i, s in enumerate(seq)]
     
@@ -72,7 +78,24 @@ class Instruct(MetaWorldWrapper):
     def reset(self):
         self.task_description = generate_sequence()
         return super().reset()
-
+    def step(self, keys):
+        action = np.array([0, 0, 0, 0])
+        if 'w' in keys: action[1] += 1
+        elif 's' in keys: action[1] -= 1
+        if 'a' in keys: action[0] += 1
+        elif 'd' in keys: action[0] -= 1
+        if 'j' in keys: action[2] -= 1
+        elif 'k' in keys: action[2] += 1
+        if 'l' in keys: action[3] += 1
+        elif 'o' in keys: action[3] -= 1
+            
+        obs, rew, done, info = self.env.step(action)
+        
+        truncated = (self.env.curr_path_length == self.env.max_path_length)
+        done = False
+        
+        return (obs, rew, done, truncated, info), action
+    
 class ButtonPressTopdown(MetaWorldWrapper):
     def __init__(self):
         super().__init__("button-press-topdown-v2")

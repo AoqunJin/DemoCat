@@ -1,6 +1,10 @@
 # DemoCat
  An app-based tool to collect human data from simulated or physical environments.
 
+## Introduction
+
+Our project is currently in the process of building, Welcome PR! ^_^
+
 ## Structural
 ```bash
 DemoCat/
@@ -10,8 +14,8 @@ DemoCat/
 │   ├── __init__.py
 │   ├── gui.py              # tkinter GUI 实现
 │   ├── environment.py      # 环境管理和注册
-│   ├── data_manager.py     # 数据管理（HDF5操作）
-│   └── demo_manager.py     # 演示管理（记录、查看、删除）
+│   ├── data_manager.py     # TODO 数据管理（HDF5操作）
+│   └── demo_manager.py     # TODO 演示管理（记录、查看、删除）
 │
 ├── environments/
 │   ├── __init__.py

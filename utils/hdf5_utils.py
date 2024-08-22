@@ -1,3 +1,4 @@
+from functools import reduce
 import h5py
 import numpy as np
 import threading
@@ -10,6 +11,11 @@ class HDF5DataManager:
         # TODO Add cache self._cache = {}
 
     def save_demonstration(self, env_name: str, task_name: str, demo_data):
+        # clip
+        l = []
+        for key, value in demo_data.items():
+            if key != 'instruction': l.append(len(value))
+        min_l = reduce(min, l)
         with self._lock:
             with h5py.File(self.file_path, 'a') as f:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -20,7 +26,7 @@ class HDF5DataManager:
                         dt = h5py.string_dtype(encoding='utf-8')
                         demo_group.create_dataset(key, data=value, dtype=dt,)
                     else:
-                        demo_group.create_dataset(key, data=np.array(value), compression="gzip", chunks=True)
+                        demo_group.create_dataset(key, data=np.array(value[:min_l]), compression="gzip", chunks=True)
 
     def load_demonstrations(self, env_name, task_name):
         with self._lock:
