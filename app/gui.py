@@ -24,8 +24,8 @@ class ImitationLearningGUI:
         self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": []}
         
         self.current_page = 1
-        self.total_pages = 10
-        self.page_size = 10
+        self.total_pages = 1
+        self.page_size = 20
 
         self.current_frame = 0
         self.total_frames = 0
@@ -221,7 +221,7 @@ class ImitationLearningGUI:
         selected_demo = self.demo_listbox.get(tk.ACTIVE)
         if selected_demo:
             env_name, task_name, demo_id = selected_demo.split('/')
-            demo_data = self.data_manager.load_demonstrations(env_name, task_name)[demo_id]
+            demo_data = self.data_manager.load_demonstrations(env_name, task_name, demo_id)
             self.playback.play_pause(demo_data)
         else:
             messagebox.showwarning("No Selection", "Please select a demonstration to view.")

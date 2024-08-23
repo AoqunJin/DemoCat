@@ -1,7 +1,7 @@
 # file: app/environment.py
 
 from typing import Any
-from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv, PongEnv
+from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv
 from environments.meta_world.metaworld_env import (
     Instruct,
     ButtonPressTopdown,
@@ -17,16 +17,12 @@ from environments.meta_world.metaworld_env import (
     PlateSlideBackSide,
     FaucetOpen,
     FaucetClose,
-    HandInsert,
-    PickOutOfHole,
     PickPlaceWall,
     PickPlace,
     Push,
     PushWall,
     PushBack,
-    SweepIntoGoal,
     Sweep,
-    Reach,
     ReachWall
 )
     
@@ -38,7 +34,7 @@ class EnvironmentManager:
         self._register_default_environments()
 
     def _register_default_environments(self):
-        self.register_environment('metaworld')
+        self.register_environment('metaworld')  # metaworld-20
         self.register_task('metaworld', 'Instruct', Instruct)
         self.register_task('metaworld', 'ButtonPressTopdown', ButtonPressTopdown)
         self.register_task('metaworld', 'ButtonPressTopdownWall', ButtonPressTopdownWall)
@@ -48,27 +44,22 @@ class EnvironmentManager:
         self.register_task('metaworld', 'CoffeePull', CoffeePull)
         self.register_task('metaworld', 'CoffeePush', CoffeePush)
         self.register_task('metaworld', 'PlateSlide', PlateSlide)
-        self.register_task('metaworld', 'PlateSlideSide', PlateSlideSide)
         self.register_task('metaworld', 'PlateSlideBack', PlateSlideBack)
+        self.register_task('metaworld', 'PlateSlideSide', PlateSlideSide)
         self.register_task('metaworld', 'PlateSlideBackSide', PlateSlideBackSide)
         self.register_task('metaworld', 'FaucetOpen', FaucetOpen)
         self.register_task('metaworld', 'FaucetClose', FaucetClose)
-        self.register_task('metaworld', 'HandInsert', HandInsert)
-        self.register_task('metaworld', 'PickOutOfHole', PickOutOfHole)
         self.register_task('metaworld', 'PickPlaceWall', PickPlaceWall)
         self.register_task('metaworld', 'PickPlace', PickPlace)
         self.register_task('metaworld', 'Push', Push)
         self.register_task('metaworld', 'PushWall', PushWall)
         self.register_task('metaworld', 'PushBack', PushBack)
-        self.register_task('metaworld', 'SweepIntoGoal', SweepIntoGoal)
         self.register_task('metaworld', 'Sweep', Sweep)
-        self.register_task('metaworld', 'Reach', Reach)
         self.register_task('metaworld', 'ReachWall', ReachWall)
         
-        self.register_environment('gym')
+        self.register_environment('gym')  # gym-2
         self.register_task('gym', 'CartPole', CartPoleEnv)
         self.register_task('gym', 'MountainCar', MountainCarEnv)
-        self.register_task('gym', 'Pong', PongEnv)
 
     def register_environment(self, env_name):
         if env_name in self.environments:

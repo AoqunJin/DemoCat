@@ -5,7 +5,7 @@ from tkinter import ttk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from utils.input_handler import InputHandler
-from utils.tools import resize_and_pad_to_square
+from utils.tools import resize_and_pad_to_square, trans
 
 class DemonstrationCollector:
     def __init__(self, master, env_combobox, task_combobox, 
@@ -57,6 +57,7 @@ class DemonstrationCollector:
         self.input_handler.reset()
         self.is_demonstrating = True
         self.is_paused = False
+        self.pause_button.configure(text="Pause")
         self.save_button['state'] = tk.NORMAL
         self.pause_button['state'] = tk.NORMAL
         self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": [], "instruction": ""}
@@ -101,7 +102,7 @@ class DemonstrationCollector:
         self.demonstration_id = None
 
     def update_display(self):
-        img = Image.fromarray(self.demonstration_data["frames"][-1])
+        img = Image.fromarray(trans(self.demonstration_data["frames"][-1]))
         img = resize_and_pad_to_square(img, 500)
         img = ImageTk.PhotoImage(img)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
@@ -132,5 +133,5 @@ class DemonstrationCollector:
         info = self.task.task_description
         self.task_info_text.config(state=tk.NORMAL)
         self.task_info_text.delete('1.0', tk.END)
-        self.task_info_text.insert(tk.END, f"Task Instruction: \n{info}\n")
+        self.task_info_text.insert(tk.END, f"{info}")
         self.task_info_text.config(state=tk.DISABLED)

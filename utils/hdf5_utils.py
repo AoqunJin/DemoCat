@@ -28,26 +28,18 @@ class HDF5DataManager:
                     else:
                         demo_group.create_dataset(key, data=np.array(value[:min_l]), compression="gzip", chunks=True)
 
-    def load_demonstrations(self, env_name, task_name):
+    def load_demonstrations(self, env_name, task_name, timestamp):
         with self._lock:
             demonstrations = {}
             with h5py.File(self.file_path, 'r') as f:
-               self._load_task_demonstrations(f[env_name][task_name], demonstrations, env_name, task_name)
+                demo_group = f[f"{env_name}/{task_name}/{timestamp}"]
+                for key in demo_group.keys():
+                    if key == 'instruction':
+                        demonstrations[key] = demo_group[key][()]
+                    else:
+                        demonstrations[key] = demo_group[key][:]
             
             return demonstrations
-
-    def _load_task_demonstrations(self, task_group, demonstrations, env_name, task_name):
-        for timestamp in task_group.keys():
-            demo_data = {}
-            demo_group = task_group[timestamp]
-            for key in demo_group.keys():
-                if key == 'instruction':
-                    demo_data[key] = demo_group[key][()]
-                else:
-                    demo_data[key] = demo_group[key][:]
-            for key, value in demo_group.attrs.items():
-                demo_data[key] = value
-            demonstrations[f"{timestamp}"] = demo_data
 
     def delete_demonstration(self, env_name, task_name, demo_id):
         with self._lock:
@@ -73,5 +65,5 @@ class HDF5DataManager:
             except KeyError as e:
                 print(e)
                 return [], 1
-            return demo_list, (len(k) + 1) // page_size + 1
+            return demo_list, (len(k) - 1) // page_size + 1
             

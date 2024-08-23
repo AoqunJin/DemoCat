@@ -1,3 +1,4 @@
+import numpy as np
 from PIL import Image
 
 def resize_and_pad_to_square(img, target_size):
@@ -23,3 +24,11 @@ def resize_and_pad_to_square(img, target_size):
     new_img.paste(resized_img, (left, top))
     
     return new_img
+
+def trans(np_array):
+    # 交换红色和蓝色通道
+    # 红色通道：swapped_array[:, :, 0]
+    # 蓝色通道：swapped_array[:, :, 2]    
+    swapped_array = np.copy(np_array)
+    swapped_array[:, :, [0, 2]] = swapped_array[:, :, [2, 0]]
+    return swapped_array
