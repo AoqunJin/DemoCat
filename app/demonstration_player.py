@@ -88,7 +88,12 @@ class DemoPlayer:
             
             self.info_text.config(state=tk.NORMAL)
             self.info_text.delete('1.0', tk.END)
-            self.info_text.insert(tk.END, f"{self.demonstration_data['instruction'].decode()}\n")
+            try:
+                instruction = self.demonstration_data['instruction'].decode().split("Task Description:")[1]
+            except Exception:
+                pass
+                # instruction = self.demonstration_data['instruction'].decode()
+            self.info_text.insert(tk.END, f"Instruction: {instruction}\n")
             self.info_text.insert(tk.END, f"Action: {self.demonstration_data['action'][self.current_frame]}\n")
             self.info_text.insert(tk.END, f"Done: {self.demonstration_data['done'][self.current_frame]}\n")
             self.info_text.config(state=tk.DISABLED)

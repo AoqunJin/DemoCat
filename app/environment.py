@@ -2,7 +2,7 @@
 
 from typing import Any
 from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv
-from environments.meta_world.metaworld_env import (
+from environments.metaworld.metaworld_env import (
     Instruct,
     ButtonPressTopdown,
     ButtonPressTopdownWall,

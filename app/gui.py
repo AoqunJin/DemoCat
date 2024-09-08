@@ -162,7 +162,7 @@ class ImitationLearningGUI:
         default_env = self.env_manager.get_available_environments()[0]
         self.env_combobox_manage.set(default_env)
         self.env_combobox_manage.bind("<<ComboboxSelected>>", self.update_task_combobox_manage)
-        self.task_combobox_manage.bind("<<ComboboxSelected>>", self.update_demo_list)
+        self.task_combobox_manage.bind("<<ComboboxSelected>>", self.update_page)
         self.update_task_combobox_manage()
         self.update_page_display()
 
@@ -174,6 +174,10 @@ class ImitationLearningGUI:
             self.task_combobox.set(tasks[0])
         else:
             self.task_combobox.set('')
+    
+    def update_page(self, event=None):
+        self.current_page = 1
+        self.update_demo_list()
 
     def update_task_combobox_manage(self, event=None):
         selected_env = self.env_combobox_manage.get()

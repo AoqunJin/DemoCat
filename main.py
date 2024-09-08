@@ -10,7 +10,12 @@ from utils.hdf5_utils import HDF5DataManager
 def main():
     root = tk.Tk()
     root.config(bg="white")
-    style = ttk.Style()
+    style = ttk.Style(root)
+    # Available on all platform: alt, clam, classic, default
+    # Windows: vista, winnative, xpnative
+    # Mac: aqua
+    # on Linux unfortunately there isn't any native theme, they look like plain tk widgets
+    style.theme_use('clam')
     font_settings = ("Helvetica", 12)
     style.configure("TButton", foreground="black", font=font_settings, bg="white")
     style.configure("TLabel", foreground="black", font=font_settings, bg="white")
