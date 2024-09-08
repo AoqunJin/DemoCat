@@ -1,7 +1,7 @@
 import random
 import numpy as np
+from typing import Any
 import cv2
-import metaworld.envs.mujoco.env_dict as _env_dict
 from .arm import *
 from ..base_env import BaseEnv
 
@@ -11,7 +11,7 @@ This is a real-world environment featuring a robotic arm with a gripper attached
 def reset_cube_description():
     color = ['red', 'orange', 'yellow', 'green', 'blue', 'purple']
     position = ['top', 'left', 'right', 'front', 'back']
-    c = random.choices(color, k=2)
+    c = random.sample(color, k=2)
     p = random.choice(position)
     d = f"{DIS_TAB_AND_ARM} In front of the arm, there are cubes of various colors.\n\nTask Description:\nTake the {c[0]} cube {p} the {c[1]} cube."
     return d
@@ -23,19 +23,18 @@ def reset_kitchen_description():
         "Frying Pan",  # (平底锅)
         "Pressure Cooker",  # (高压锅)
         "Pot",  # (锅)
-        "Kettle",  # (水壶)
-        "Rice Cooker"  # (电饭煲)
+        #"Kettle",  # (水壶)
+#"Rice Cooker"  # (电饭煲)
     ]
-
     ingredients = [
         "Cookware",  # (厨具)
         "Corn",  # (玉米)
         "Eggplant",  # (茄子)
-        "Egg"  # (鸡蛋)
+       # "Egg"  # (鸡蛋)
     ]
 
     cooked_food = [
-        "Hot Dog",  # (热狗)
+       # "Hot Dog",  # (热狗)
         "French Fries",  # (薯条)
         "Sandwich",  # (三明治)
         "Beverage"  # (饮料)
@@ -47,8 +46,8 @@ def reset_kitchen_description():
         "Spoon"  # (勺子)
     ]
     
-    action = random.randint(0, 3)
-    
+    action = random.randint(3, 3)
+
     if action == 0:
         # 1. Place cookware on the stove
         selected_cookware = random.choice(cookware)
@@ -64,9 +63,9 @@ def reset_kitchen_description():
     elif action == 2:
         # 3. Move cooked food from cookware to tableware (plate, bowl)
         selected_food = random.choice(cooked_food)
-        selected_cookware = random.choice(cookware)    
+        #selected_cookware = random.choice(cookware)    
         selected_tableware = random.choice(tableware)
-        return f"{DIS_TAB_AND_ARM} In front of the arm, there is a small kitchen.\n\nTask Description:\nMove the {selected_food} from the {selected_cookware} to the {selected_tableware}."
+        return f"{DIS_TAB_AND_ARM} In front of the arm, there is a small kitchen.\n\nTask Description:\nMove the {selected_food} to the {selected_tableware}."
     
     elif action == 3:
         # 4. Arrange tableware
@@ -78,13 +77,23 @@ def reset_kitchen_description():
 class RM65(BaseEnv):
     task_description = ""
     default_action = 0
+    _instance = None
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> 'RM65':
+        if not cls._instance:
+            cls._instance = super(RM65, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self) -> None:
-        super().__init__()
-        self.robot = init()
-        self.cap = cv2.VideoCapture(0)
+        if not self._initialized:
+            super().__init__()
+            self.robot = init()
+            self.cap = cv2.VideoCapture(1)
+            self._initialized = True
         
     def reset(self):
-        self.robot = init()
+        init_pose(self.robot)
         return 0
     
     def step(self, keys):
@@ -113,6 +122,7 @@ class RM65(BaseEnv):
             grasp_open(self.robot)
             action = 8
         else:
+            stop(self.robot)
             action = 0
         
         return (0, 0, False, False, {}), action
@@ -123,19 +133,27 @@ class RM65(BaseEnv):
         
     def close(self):
         self.cap.release()
-        
+
+    @property
+    def action_space(self):
+        return 0
+
+    @property
+    def observation_space(self):
+        return 0
+    
 class RM65Cube(RM65):
     def __init__(self) -> None:
         super().__init__()
     def reset(self):
-        self.robot = init()
         self.task_description = reset_cube_description()
+        init_pose(self.robot)
         return 0
     
 class RM65Kitchen(RM65):
     def __init__(self) -> None:
         super().__init__()
     def reset(self):
-        self.robot = init()
         self.task_description = reset_kitchen_description()
+        init_pose(self.robot)
         return 0

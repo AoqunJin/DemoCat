@@ -5,7 +5,7 @@ from tkinter import ttk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from utils.input_handler import InputHandler
-from utils.tools import resize_and_pad_to_square, trans
+from utils.tools import resize_and_pad_to_square, trans, center_crop_and_resize
 
 class DemonstrationCollector:
     def __init__(self, master, env_combobox, task_combobox, 
@@ -62,7 +62,7 @@ class DemonstrationCollector:
         self.pause_button['state'] = tk.NORMAL
         self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": [], "instruction": ""}
         observation = self.task.reset()
-        img_array = self.task.render()
+        img_array = center_crop_and_resize(self.task.render())
         self.demonstration_data["observation"].append(observation)
         self.demonstration_data["frames"].append(img_array)
         # self.demonstration_data["action"].append(self.task.default_action)  # Initial action
@@ -79,7 +79,7 @@ class DemonstrationCollector:
                 action = self.input_handler.get_action()
                 (observation, reward, terminated, truncated, info), action = self.task.step(action)
                 done = terminated or truncated
-                img_array = self.task.render()
+                img_array = center_crop_and_resize(self.task.render())
                 self.demonstration_data["observation"].append(observation)
                 self.demonstration_data["action"].append(action)
                 self.demonstration_data["reward"].append(reward)

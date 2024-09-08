@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+import cv2
 
 def resize_and_pad_to_square(img, target_size):
     # 获取图像的宽度和高度
@@ -24,6 +25,25 @@ def resize_and_pad_to_square(img, target_size):
     new_img.paste(resized_img, (left, top))
     
     return new_img
+
+def center_crop_and_resize(image, size=224):
+    # 获取图像的高度和宽度
+    height, width = image.shape[:2]
+
+    # 确定短边的长度
+    short_edge = min(height, width)
+
+    # 计算裁剪的起始点（中心裁剪）
+    start_x = (width - short_edge) // 2
+    start_y = (height - short_edge) // 2
+
+    # 裁剪图像，生成正方形
+    cropped_image = image[start_y:start_y + short_edge, start_x:start_x + short_edge]
+
+    # 调整大小到指定大小
+    resized_image = cv2.resize(cropped_image, (size, size))
+
+    return resized_image
 
 def trans(np_array):
     # 交换红色和蓝色通道

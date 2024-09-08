@@ -1,6 +1,8 @@
 # file: app/environment.py
 
 from typing import Any
+import importlib
+
 from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv
 from environments.metaworld.metaworld_env import (
     Instruct,
@@ -25,9 +27,9 @@ from environments.metaworld.metaworld_env import (
     Sweep,
     ReachWall
 )
-    
-import importlib
+from environments.real.rm65_env import RM65Cube, RM65Kitchen
 
+    
 class EnvironmentManager:
     def __init__(self):
         self.environments = {}
@@ -56,6 +58,10 @@ class EnvironmentManager:
         self.register_task('metaworld', 'PushBack', PushBack)
         self.register_task('metaworld', 'Sweep', Sweep)
         self.register_task('metaworld', 'ReachWall', ReachWall)
+        
+        self.register_environment('real')  # real-65
+        self.register_task('real', 'RM65Cube', RM65Cube)
+        self.register_task('real', 'RM65Kitchen', RM65Kitchen)
         
         self.register_environment('gym')  # gym-2
         self.register_task('gym', 'CartPole', CartPoleEnv)
