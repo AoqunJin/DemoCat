@@ -2,11 +2,15 @@ import random
 import numpy as np
 from typing import Any
 import cv2
-from .arm import *
+try:
+    from .arm import *
+except OSError as e:
+    print(e)
+    
 from ..base_env import BaseEnv
 
 DIS_TAB_AND_ARM = """Environment Description:
-This is a real-world environment featuring a robotic arm with a gripper attached to its end, a table, and a background wall. The robotic arm is equipped with a black gripper at its end, designed for precise manipulation tasks. The table is made of yellow wood, providing a warm and natural surface for the robotic operations. A white background wall serves as a clean and neutral backdrop to the scene. The setting appears to be a well-lit workspace, likely in a laboratory or industrial setting. Natural shadows are cast by the objects, emphasizing the three-dimensional nature of the setup. This environment represents a typical real-world robotic workspace, showcasing the interaction between advanced robotics and everyday materials."""
+This is a real-world environment featuring a robotic arm with a gripper attached to its end, a table, and a background wall. The robotic arm is equipped with a black gripper at its end, designed for precise manipulation tasks. The table is covered with a layer of white paper to provide a clean surface for the robotic operations. A white background wall serves as a clean and neutral backdrop to the scene. The setting appears to be a well-lit workspace, likely in a laboratory or industrial setting. Natural shadows are cast by the objects, emphasizing the three-dimensional nature of the setup. This environment represents a typical real-world robotic workspace, showcasing the interaction between advanced robotics and everyday materials."""
 
 def reset_cube_description():
     color = ['red', 'orange', 'yellow', 'green', 'blue', 'purple']
@@ -23,18 +27,18 @@ def reset_kitchen_description():
         "Frying Pan",  # (平底锅)
         "Pressure Cooker",  # (高压锅)
         "Pot",  # (锅)
-        #"Kettle",  # (水壶)
-#"Rice Cooker"  # (电饭煲)
+        # "Kettle",  # (水壶)
+        # "Rice Cooker"  # (电饭煲)
     ]
     ingredients = [
         "Cookware",  # (厨具)
         "Corn",  # (玉米)
         "Eggplant",  # (茄子)
-       # "Egg"  # (鸡蛋)
+        # "Egg"  # (鸡蛋)
     ]
 
     cooked_food = [
-       # "Hot Dog",  # (热狗)
+        # "Hot Dog",  # (热狗)
         "French Fries",  # (薯条)
         "Sandwich",  # (三明治)
         "Beverage"  # (饮料)
