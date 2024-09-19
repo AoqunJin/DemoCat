@@ -1,14 +1,27 @@
 import tkinter as tk
-from tkinter import simpledialog
-from tkinter import ttk, messagebox, filedialog
-from PIL import Image, ImageTk
-import numpy as np
+from tkinter import ttk, messagebox
 from utils.input_handler import InputHandler
 from app.demonstration_player import DemoPlayer
 from app.demonstration_collector import DemonstrationCollector
 
 class ImitationLearningGUI:
     def __init__(self, master, env_manager, data_manager):
+        """
+        Constructor for ImitationLearningGUI class.
+
+        Parameters
+        ----------
+        master : tk.Tk
+            The master window that this class will be attached to.
+        env_manager : EnvironmentManager
+            The manager that manages the environment.
+        data_manager : DataManager
+            The manager that manages the data.
+
+        Returns
+        -------
+        None
+        """
         self.master = master
         self.env_manager = env_manager
         self.data_manager = data_manager
@@ -34,10 +47,24 @@ class ImitationLearningGUI:
         self.create_widgets()
 
     def create_widgets(self):
-        # self.create_menu()
         self.create_tabs()
 
     def create_tabs(self):
+        """
+        Create the tabs for demonstration collection and management.
+
+        This function creates two tabs named "Demonstration Collection" and
+        "Management". The first tab is for collecting and saving demonstrations,
+        and the second tab is for managing the existing demonstrations.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         notebook = ttk.Notebook(self.master)
         notebook.pack(expand=1, fill='both')
 
@@ -51,25 +78,42 @@ class ImitationLearningGUI:
         self.create_demo_tab_widgets()
         
     def create_demo_tab_widgets(self):
-        # 左侧面板：包含环境和任务选择以及操作按钮
+        """
+        Create the widgets for the demonstration collection tab.
+
+        This function creates a tab named "Demonstration Collection" and adds
+        the necessary widgets to it. The widgets include a combobox for
+        selecting the environment, a combobox for selecting the task, a
+        demonstration collector, and a text box for displaying the task
+        information.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
+        # Left panel: contains environment and task selection and operation buttons      
         top_panel = ttk.Frame(self.demo_tab, width=300, height=600)
         top_panel.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
-        # 环境选择部分
+        # Environment selection
         env_label = ttk.Label(top_panel, text="Environment:")
         env_label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.E)
         self.env_combobox = ttk.Combobox(top_panel, values=self.env_manager.get_available_environments())
         self.env_combobox.grid(row=0, column=1, padx=5, pady=5, sticky=tk.E)
         self.env_combobox.config(state="readonly")
 
-        # 任务选择部分
+        # Task selection
         task_label = ttk.Label(top_panel, text="Task:")
         task_label.grid(row=0, column=2, padx=5, pady=5, sticky=tk.E)
         self.task_combobox = ttk.Combobox(top_panel)
         self.task_combobox.grid(row=0, column=3, padx=5, pady=5, sticky=tk.E)
         self.task_combobox.config(state="readonly")
 
-        # 将 bottom_panel 分为两部分
+        # Divide bottom_panel into two parts
         bottom_panel = ttk.Frame(self.demo_tab, width=300)
         bottom_panel.grid(row=1, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
@@ -79,62 +123,80 @@ class ImitationLearningGUI:
         bottom_right_panel = ttk.Frame(bottom_panel, width=40, height=60)
         bottom_right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 10), pady=10)
         
-        # 任务信息显示区域
+        # Task information display area
         self.task_info_text = tk.Text(bottom_right_panel, height=20, width=50, font=("Calibri", 12), bd='0')
         self.task_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.task_info_text.config(state=tk.DISABLED)
         
-        # 
+        # Demonstration Collector
         self.demonstration_collector = DemonstrationCollector(
             bottom_left_panel, self.env_combobox, self.task_combobox, 
             self.env_manager, self.data_manager, self.demo_listbox, self.task_info_text
         )
 
-        # 设置默认环境值并绑定选择事件
+        # Set default environment value and bind selection event
         default_env = self.env_manager.get_available_environments()[0]
         self.env_combobox.set(default_env)
         self.env_combobox.bind("<<ComboboxSelected>>", self.update_task_combobox)
         self.update_task_combobox()
 
     def create_manage_tab_widgets(self):
-        # 右侧面板
+        # Right panel
+        """
+        Create the widgets for the management tab.
+
+        This function creates a tab named "Management" and adds
+        the necessary widgets to it. The widgets include a combobox
+        for selecting the environment, a combobox for selecting the
+        task, a demonstration player, and a listbox for displaying
+        the list of available demonstrations.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
+        
         right_panel = ttk.Frame(self.manage_tab, width=200, height=600)
         right_panel.grid(row=0, column=1, padx=10, pady=10, sticky=tk.NSEW)
 
-        # 右上侧面板
+        # Top right panel
         up_right_panel = ttk.Frame(right_panel)
         up_right_panel.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
-        # 环境选择部分
+        # Environment selection
         env_label = ttk.Label(up_right_panel, text="Environment:")
         env_label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.E)
         self.env_combobox_manage = ttk.Combobox(up_right_panel, values=self.env_manager.get_available_environments())
         self.env_combobox_manage.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
         self.env_combobox_manage.config(state="readonly")
 
-        # 任务选择部分
+        # Task selection
         task_label = ttk.Label(up_right_panel, text="Task:")
         task_label.grid(row=0, column=2, padx=5, pady=5, sticky=tk.E)
         self.task_combobox_manage = ttk.Combobox(up_right_panel)
         self.task_combobox_manage.grid(row=0, column=3, padx=5, pady=5, sticky=tk.W)
         self.task_combobox_manage.config(state="readonly")
 
-        # 右中侧面板
+        # Middle right panel
         mid_right_panel = ttk.Frame(right_panel)
         mid_right_panel.grid(row=1, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
         history_label = ttk.Label(mid_right_panel, text="History:")
         history_label.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # 演示显示区域
+        # Demonstration display area
         self.demo_listbox = tk.Listbox(mid_right_panel, width=30, height=20, font=("Calibri", 12), bd='0')
         self.demo_listbox.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # 创建框架
+        # Create frame
         frame = ttk.Frame(mid_right_panel, padding="10")
         frame.pack(fill=tk.BOTH, expand=True)
         
-        # 创建按钮
+        # Create buttons
         ttk.Button(frame, text="|<<", command=self.first_page).grid(row=0, column=0)
         ttk.Button(frame, text="<", command=self.prev_page).grid(row=0, column=1)
         
@@ -145,7 +207,7 @@ class ImitationLearningGUI:
         ttk.Button(frame, text=">", command=self.next_page).grid(row=0, column=3)
         ttk.Button(frame, text=">>|", command=self.last_page).grid(row=0, column=4)
 
-        # 右下侧面板
+        # Bottom right panel
         bottom_right_panel = ttk.Frame(right_panel)
         bottom_right_panel.grid(row=2, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
@@ -153,12 +215,12 @@ class ImitationLearningGUI:
         ttk.Button(bottom_right_panel, text="Delete Demonstration", command=self.delete_demonstration).grid(row=0, column=1, padx=5, pady=5)
         ttk.Button(bottom_right_panel, text="Refresh", command=self.update_demo_list).grid(row=0, column=2, padx=5, pady=5)
         
-        # 左侧面板
+        # Left panel
         left_panel = ttk.Frame(self.manage_tab, width=200, height=600)
         left_panel.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
         self.playback = DemoPlayer(left_panel, self.demo_listbox)
 
-        # 设置默认环境值并绑定选择事件
+        # Set default environment value and bind selection event
         default_env = self.env_manager.get_available_environments()[0]
         self.env_combobox_manage.set(default_env)
         self.env_combobox_manage.bind("<<ComboboxSelected>>", self.update_task_combobox_manage)

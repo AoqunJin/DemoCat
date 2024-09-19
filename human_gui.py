@@ -8,6 +8,14 @@ from app.environment import EnvironmentManager
 from utils.hdf5_utils import HDF5DataManager
 
 def main():
+    """
+    The main entry point of the application.
+
+    This function creates a tkinter window and set up the style of the window.
+    Then it creates an instance of EnvironmentManager and HDF5DataManager.
+    Finally, it creates an instance of ImitationLearningGUI and starts the main loop of the application.
+
+    """
     root = tk.Tk()
     root.config(bg="white")
     style = ttk.Style(root)

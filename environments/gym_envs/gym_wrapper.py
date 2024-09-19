@@ -30,7 +30,6 @@ class GymEnvWrapper(BaseEnv):
     def observation_space(self):
         return self.env.observation_space
 
-# 示例：封装具体的Gym环境
 class CartPoleEnv(GymEnvWrapper):
     default_action = 0
     def __init__(self):
@@ -40,6 +39,15 @@ class CartPoleEnv(GymEnvWrapper):
         return self.env.reset()[0]
 
     def step(self, keys):
+        """
+        Step the environment with the given key presses.
+
+        Args:
+            keys: A list of strings representing the keys to press.
+
+        Returns:
+            A tuple of (observation, reward, done, truncated, info) and the action taken.
+        """
         if 'Left' in keys:
             action = 0
         else:

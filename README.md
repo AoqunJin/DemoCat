@@ -1,9 +1,9 @@
 # DemoCat
-An app-based tool to collect human data from simulated or physical environments.
+An app and scripts based tool to collect human data from simulated or physical environments.
 
 ## Introduction
 
-Our project is currently in the process of building, Welcome PR! ^_^
+- ```2024/09/19``` Our project is currently in the process of building, Welcome PR! ^_^
 
 ### Demonstration Collection
 

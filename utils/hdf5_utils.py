@@ -5,13 +5,40 @@ import threading
 from datetime import datetime
 
 class HDF5DataManager:
-    def __init__(self, file_path):
+    def __init__(self, file_path):        
+        """
+        Constructor for HDF5DataManager.
+
+        Parameters
+        ----------
+        file_path : str
+            The path to the HDF5 file to store the data in.
+
+        """
         self.file_path = file_path
         self._lock = threading.Lock()
         # TODO Add cache self._cache = {}
 
     def save_demonstration(self, env_name: str, task_name: str, demo_data):
-        # clip
+        """
+        Save a demonstration into the HDF5 file.
+
+        Parameters
+        ----------
+        env_name : str
+            The name of the environment.
+        task_name : str
+            The name of the task.
+        demo_data : dict
+            A dictionary containing the demonstration data. The keys should be
+            the names of the data, and the values should be the data itself. If
+            the data is a string, it should be stored under the key
+            'instruction'.
+
+        Returns
+        -------
+        None
+        """
         l = []
         for key, value in demo_data.items():
             if key != 'instruction': l.append(len(value))
@@ -29,6 +56,26 @@ class HDF5DataManager:
                         demo_group.create_dataset(key, data=np.array(value[:min_l]), compression="gzip", chunks=True)
 
     def load_demonstrations(self, env_name, task_name, timestamp):
+        """
+        Load a demonstration from the HDF5 file.
+
+        Parameters
+        ----------
+        env_name : str
+            The name of the environment.
+        task_name : str
+            The name of the task.
+        timestamp : str
+            The timestamp of the demonstration.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the demonstration data. The keys should be
+            the names of the data, and the values should be the data itself. If
+            the data is a string, it should be stored under the key
+            'instruction'.
+        """
         with self._lock:
             demonstrations = {}
             with h5py.File(self.file_path, 'r') as f:
@@ -47,6 +94,28 @@ class HDF5DataManager:
                 del f[f"{env_name}/{task_name}/{demo_id}"]
 
     def get_demonstration_list(self, env_name, task_name, page=1, page_size=10):
+        """
+        Get a list of demonstrations in the given environment and task.
+
+        Parameters
+        ----------
+        env_name : str
+            The name of the environment.
+        task_name : str
+            The name of the task.
+        page : int, optional
+            The page number to load, by default 1
+        page_size : int, optional
+            The number of demonstrations to load per page, by default 10
+
+        Returns
+        -------
+        list
+            A list of demonstration identifiers, each in the format
+            'env_name/task_name/timestamp'.
+        int
+            The total number of pages of demonstrations available.
+        """
         with self._lock:
             demo_list = []
             try:

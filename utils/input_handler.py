@@ -12,6 +12,19 @@ class InputHandler:
         self.setup_bindings()
 
     def setup_bindings(self):
+        """
+        Set up the event bindings for the master widget.
+
+        This method is called in the constructor and sets up the
+        event bindings for the master widget. The event bindings
+        are as follows:
+
+        - `<KeyPress>`: calls `on_key_press`
+        - `<KeyRelease>`: calls `on_key_release`
+        - `<Motion>`: calls `on_mouse_move`
+        - `<Button-1>`: calls `on_mouse_click`
+        - `<ButtonRelease-1>`: calls `on_mouse_release`
+        """
         self.master.bind_all("<KeyPress>", self.on_key_press)
         self.master.bind_all("<KeyRelease>", self.on_key_release)
         self.master.bind("<Motion>", self.on_mouse_move)

@@ -5,6 +5,16 @@ from utils.tools import resize_and_pad_to_square, trans
 
 class DemoPlayer:
     def __init__(self, master, demo_listbox):
+        """
+        Constructor for DemoPlayer class.
+
+        Parameters
+        ----------
+        master : tk.Frame
+            The master frame that this class will be attached to.
+        demo_listbox : tk.Listbox
+            The listbox that displays the list of available demonstrations.
+        """
         self.master = master
         self.is_playing = False
         self.new_demo = True
@@ -13,11 +23,11 @@ class DemoPlayer:
         self.demo_listbox = demo_listbox
         self.demonstration_data = None
 
-        # 显示画布
+        # Create playback canvas
         self.playback = tk.Canvas(master, width=500, height=500, bg='white')
         self.playback.grid(row=0, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
 
-        # 控制按钮
+        # Create buttons
         button_frame = ttk.Frame(master)
         button_frame.grid(row=1, column=0, columnspan=5, pady=5, sticky='nsew')
         self.jump_to_start_button = ttk.Button(button_frame, text="|<<", command=self.jump_to_start, width=5)
@@ -31,12 +41,27 @@ class DemoPlayer:
         self.jump_to_end_button = ttk.Button(button_frame, text=">>|", command=self.jump_to_end, width=5)
         self.jump_to_end_button.grid(row=0, column=4, padx=5)
 
-        # 信息显示框
+        # Show info
         self.info_text = tk.Text(master, height=7, width=70, bd='0')
         self.info_text.grid(row=2, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
         self.info_text.config(state=tk.DISABLED)
 
     def play_pause(self, demo_data=None):
+        """
+        Play or pause the current demonstration.
+
+        If a demonstration is provided in the input argument, this function will
+        play the demonstration. If the demonstration is currently playing, this
+        function will pause the demonstration. If the demonstration is currently
+        paused, this function will continue playing the demonstration from the
+        current frame.
+
+        Parameters
+        ----------
+        demo_data : list, optional
+            The demonstration data to play. If not provided, the demonstration
+            data that was previously loaded will be used.
+        """
         if demo_data:
             self.demonstration_data = demo_data
             self.is_playing = True
@@ -79,6 +104,19 @@ class DemoPlayer:
             self.update_frame()
 
     def update_frame(self):
+        """
+        Update the display of the current demonstration.
+
+        This function updates the display of the current demonstration by
+        rendering the current frame of the demonstration and displaying it
+        on the canvas. It also updates the info text to show the instruction,
+        action and done status of the current frame.
+
+        If the demonstration is playing, this function will schedule itself to
+        be called again after 100 milliseconds to update the display of the
+        next frame.
+        """
+
         if self.current_frame < self.total_frames:
             img = Image.fromarray(trans(self.demonstration_data['frames'][self.current_frame]))
             img = resize_and_pad_to_square(img, 500)

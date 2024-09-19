@@ -4,7 +4,7 @@ import sys
 
 def init(joint=[45, 0, -120, 30, 90, 0]):
     def mcallback(data):
-        print("MCallback MCallback MCallback")
+        print("MCallback")
         # 判断接口类型
         if data.codeKey == MOVEJ_CANFD_CB:  # 角度透传
             print("透传结果:", data.errCode)

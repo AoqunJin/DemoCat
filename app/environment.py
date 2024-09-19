@@ -1,6 +1,3 @@
-# file: app/environment.py
-
-from typing import Any
 import importlib
 
 from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv
