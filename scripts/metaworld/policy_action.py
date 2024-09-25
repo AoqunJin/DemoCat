@@ -1,5 +1,6 @@
 import os
 import argparse
+from datetime import datetime
 from typing import Any, Dict, List, Tuple
 import functools
 import copy
@@ -8,8 +9,10 @@ import cv2
 import numpy as np
 from numba import njit
 import h5py
-import metaworld.envs.mujoco.env_dict as _env_dict
-from tests.metaworld.envs.mujoco.sawyer_xyz.test_scripted_policies import test_cases_latest_noisy
+from tests.metaworld.envs.mujoco.sawyer_xyz.test_scripted_policies import policies
+
+from test_camera import setup_metaworld_env
+
 
 @njit
 def clip_and_map_to_integers(arr):
@@ -36,14 +39,13 @@ def trajectory_generator(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate a trajectory in the environment."""
     env.reset()
-    env.reset_model()
-    obs = env.reset()
-    # env.max_path_length = max_path_length
+    obs, _ = env.reset()
+    env.max_path_length = max_path_length
 
     for _ in range(env.max_path_length):
         action = policy.get_action(obs)
-        obs, rew, done, info = env.step(action)
-        rgb_image = env.sim.render(*res, mode='offscreen', camera_name=camera)[:,:,::-1]
+        obs, rew, done, truncate, info = env.step(action)
+        rgb_image = env.render()
         # mocap_pos = copy.deepcopy(env.data.mocap_pos)
         yield obs, rgb_image, action, info
 
@@ -52,16 +54,16 @@ def generate_trajectory(env: Any, env_name: str, idx: int, params: Dict[str, Any
     env._partially_observable = False
     env._freeze_rand_vec = False
     env._set_task_called = True
-    policy = functools.reduce(lambda a,b : a if a[0] == env_name else b, test_cases_latest_noisy)[1]
+    policy = policies[env_name.split("-goal-observable")[0]]()
     tag = 0
 
     while tag < 20:
-        data = {"obss": [], "obs_rgbs": [], "acts": []}
+        data = {"observation": [], "frames": [], "action": []}
         for obs, obs_rgb, act, info in trajectory_generator(env, policy, params['resolution'], params['camera']):
             if params['flip']: obs_rgb = cv2.rotate(obs_rgb, cv2.ROTATE_180)
-            data["obss"].append(obs)
-            data["obs_rgbs"].append(obs_rgb)
-            data["acts"].append(act)
+            data["observation"].append(obs)
+            data["frames"].append(obs_rgb)
+            data["action"].append(act)
             if info['success']:
                 tag = 20
                 break
@@ -87,18 +89,30 @@ def main(
     params = {'resolution': resolution, 'camera': camera, 'flip': flip,}
 
     # Get all environments from MT50_V2
-    env_dict = _env_dict.MT50_V2.items()
+    env_list = [
+        'button-press-topdown-v2-goal-observable', 'button-press-topdown-wall-v2-goal-observable', 'button-press-v2-goal-observable', 'button-press-wall-v2-goal-observable', 'reach-v2-goal-observable', 'reach-wall-v2-goal-observable', 'push-v2-goal-observable', 'push-wall-v2-goal-observable', 'pick-place-v2-goal-observable', 'pick-place-wall-v2-goal-observable', 
+        'assembly-v2-goal-observable', 'disassemble-v2-goal-observable', 'door-close-v2-goal-observable', 'door-open-v2-goal-observable', 'door-lock-v2-goal-observable', 'door-unlock-v2-goal-observable', 'drawer-close-v2-goal-observable', 'drawer-open-v2-goal-observable', 'faucet-open-v2-goal-observable', 'faucet-close-v2-goal-observable', 'plate-slide-v2-goal-observable', 'plate-slide-back-v2-goal-observable', 'plate-slide-side-v2-goal-observable', 'plate-slide-back-side-v2-goal-observable', 'window-open-v2-goal-observable', 'window-close-v2-goal-observable',
+    ]
 
     with h5py.File(hdf5_file, 'w') as f:
-        pbar = tqdm(total=n_trajectories * len(env_dict), desc="Generating and writing trajectories")
-        for env_name, env_class in env_dict:
-            env = env_class()
-            env_group = f.create_group(env_name)
+        pbar = tqdm(total=n_trajectories * len(env_list), desc="Generating and writing trajectories")
+        metaworld = f.create_group('metaworld')
+        for env_name in env_list:
+            env = setup_metaworld_env(env_name, 10)
+            env_group = metaworld.create_group(env_name)
             for idx in range(n_trajectories):
                 _, _, data = generate_trajectory(env, env_name, idx, params)
-                traj_group = env_group.create_group(str(idx))
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+                l = []
                 for key, value in data.items():
-                    traj_group.create_dataset(key, data=np.array(value), compression="gzip")
+                    if key != 'instruction': l.append(len(value))
+                min_l = functools.reduce(min, l)
+                
+                traj_group = env_group.create_group(timestamp)
+
+                for key, value in data.items():
+                    traj_group.create_dataset(key, data=np.array(value[:min_l]), compression="gzip", chunks=True)
                 pbar.update(1)
         pbar.close()
 
