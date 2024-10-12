@@ -9,10 +9,9 @@ import cv2
 import numpy as np
 from numba import njit
 import h5py
-from tests.metaworld.envs.mujoco.sawyer_xyz.test_scripted_policies import policies
 
 from test_camera import setup_metaworld_env
-
+from policy import policies
 
 @njit
 def clip_and_map_to_integers(arr):
@@ -44,6 +43,8 @@ def trajectory_generator(
 
     for _ in range(env.max_path_length):
         action = policy.get_action(obs)
+        # action = env.action_space.sample()
+
         obs, rew, done, truncate, info = env.step(action)
         rgb_image = env.render()
         # mocap_pos = copy.deepcopy(env.data.mocap_pos)
