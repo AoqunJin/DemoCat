@@ -1,4 +1,5 @@
 import os
+import random
 import argparse
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
@@ -42,12 +43,17 @@ def trajectory_generator(
     env.max_path_length = max_path_length
 
     for _ in range(env.max_path_length):
+        # Policy action
+        # if random.random() > 0.3: action = policy.get_action(obs)  # 0.1\0.3
+        # else: action = env.action_space.sample()
         action = policy.get_action(obs)
+ 
+        # Random action
         # action = env.action_space.sample()
 
         obs, rew, done, truncate, info = env.step(action)
         rgb_image = env.render()
-        # mocap_pos = copy.deepcopy(env.data.mocap_pos)
+
         yield obs, rgb_image, action, info
 
 def generate_trajectory(env: Any, env_name: str, idx: int, params: Dict[str, Any]) -> Tuple[str, int, Dict[str, List]]:
@@ -68,6 +74,10 @@ def generate_trajectory(env: Any, env_name: str, idx: int, params: Dict[str, Any
             if info['success']:
                 tag = 20
                 break
+            
+        # Random action
+        # tag = 20
+
         tag += 1
         if tag != 21: print(f"False {env_name} {idx}, last {20 - tag}.")
     
