@@ -4,6 +4,7 @@ from utils.input_handler import InputHandler
 from app.demonstration_player import DemoPlayer
 from app.demonstration_collector import DemonstrationCollector
 
+
 class ImitationLearningGUI:
     def __init__(self, master, env_manager, data_manager):
         """
@@ -28,7 +29,7 @@ class ImitationLearningGUI:
         self.input_handler = InputHandler(master)
 
         self.master.title("Imitation Learning Platform")
-        self.master.geometry("1100x700")
+        self.master.geometry("1280x720")
 
         self.env = None
         self.task = None
@@ -71,8 +72,8 @@ class ImitationLearningGUI:
         self.demo_tab = ttk.Frame(notebook)
         self.manage_tab = ttk.Frame(notebook)
 
-        notebook.add(self.demo_tab, text='Demonstration Collection')
-        notebook.add(self.manage_tab, text='Management')
+        notebook.add(self.demo_tab, text=' Demonstration Collection ')
+        notebook.add(self.manage_tab, text=' Management ')
         
         self.create_manage_tab_widgets()
         self.create_demo_tab_widgets()
@@ -100,14 +101,14 @@ class ImitationLearningGUI:
         top_panel.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
         # Environment selection
-        env_label = ttk.Label(top_panel, text="Environment:")
+        env_label = ttk.Label(top_panel, text=" Environment ")
         env_label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.E)
         self.env_combobox = ttk.Combobox(top_panel, values=self.env_manager.get_available_environments())
         self.env_combobox.grid(row=0, column=1, padx=5, pady=5, sticky=tk.E)
         self.env_combobox.config(state="readonly")
 
         # Task selection
-        task_label = ttk.Label(top_panel, text="Task:")
+        task_label = ttk.Label(top_panel, text=" Task ")
         task_label.grid(row=0, column=2, padx=5, pady=5, sticky=tk.E)
         self.task_combobox = ttk.Combobox(top_panel)
         self.task_combobox.grid(row=0, column=3, padx=5, pady=5, sticky=tk.E)
@@ -117,22 +118,30 @@ class ImitationLearningGUI:
         bottom_panel = ttk.Frame(self.demo_tab, width=300)
         bottom_panel.grid(row=1, column=0, padx=10, pady=10, sticky=tk.NSEW)
 
+        # left_panel: use grid format
         bottom_left_panel = ttk.Frame(bottom_panel)
         bottom_left_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
+        # right_panel: use pack format
         bottom_right_panel = ttk.Frame(bottom_panel, width=40, height=60)
         bottom_right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 10), pady=10)
         
         # Task information display area
-        self.task_info_text = tk.Text(bottom_right_panel, height=20, width=50, font=("Calibri", 12), bd='0')
-        self.task_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.task_info_text.config(state=tk.DISABLED)
-        
+        self.task_info_text = tk.Text(bottom_left_panel, height=60, width=50, bd='0',
+                                      font=("Consolas", 16))
+        self.task_info_text.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        self.task_info_text.config(state=tk.DISABLED)        
+        # ↑↓
         # Demonstration Collector
         self.demonstration_collector = DemonstrationCollector(
             bottom_left_panel, self.env_combobox, self.task_combobox, 
             self.env_manager, self.data_manager, self.demo_listbox, self.task_info_text
         )
+        # TODO
+        self.control_info_text = tk.Text(bottom_right_panel, height=20, width=50, bd='0',
+                                         font=("Consolas", 16))
+        self.control_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.control_info_text.config(state=tk.NORMAL)     
 
         # Set default environment value and bind selection event
         default_env = self.env_manager.get_available_environments()[0]
@@ -160,60 +169,70 @@ class ImitationLearningGUI:
         None
         """
         
-        right_panel = ttk.Frame(self.manage_tab, width=200, height=600)
+        right_panel = ttk.Frame(self.manage_tab, width=100, height=600)
         right_panel.grid(row=0, column=1, padx=10, pady=10, sticky=tk.NSEW)
 
         # Top right panel
         up_right_panel = ttk.Frame(right_panel)
-        up_right_panel.grid(row=0, column=0, padx=10, pady=10, sticky=tk.NSEW)
+        up_right_panel.grid(row=0, column=0, padx=10, pady=10)
 
         # Environment selection
-        env_label = ttk.Label(up_right_panel, text="Environment:")
+        env_label = ttk.Label(up_right_panel, text=" Environment ")
         env_label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.E)
         self.env_combobox_manage = ttk.Combobox(up_right_panel, values=self.env_manager.get_available_environments())
         self.env_combobox_manage.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
         self.env_combobox_manage.config(state="readonly")
 
         # Task selection
-        task_label = ttk.Label(up_right_panel, text="Task:")
-        task_label.grid(row=0, column=2, padx=5, pady=5, sticky=tk.E)
+        task_label = ttk.Label(up_right_panel, text=" Task ")
+        task_label.grid(row=1, column=0, padx=5, pady=5, sticky=tk.E)
         self.task_combobox_manage = ttk.Combobox(up_right_panel)
-        self.task_combobox_manage.grid(row=0, column=3, padx=5, pady=5, sticky=tk.W)
+        self.task_combobox_manage.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
         self.task_combobox_manage.config(state="readonly")
 
         # Middle right panel
         mid_right_panel = ttk.Frame(right_panel)
-        mid_right_panel.grid(row=1, column=0, padx=10, pady=10, sticky=tk.NSEW)
+        mid_right_panel.grid(row=1, column=0, padx=10, pady=10)
+        
+        # History & Refresh
+        his_ref_panel = ttk.Frame(mid_right_panel)
+        his_ref_panel.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        
+        # History label (left)
+        history_label = ttk.Label(his_ref_panel, text=" History ")
+        history_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        history_label = ttk.Label(mid_right_panel, text="History:")
-        history_label.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Refresh button (right)
+        refresh_button = ttk.Button(his_ref_panel, text=" Refresh ", command=self.update_demo_list)
+        refresh_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
-        # Demonstration display area
-        self.demo_listbox = tk.Listbox(mid_right_panel, width=30, height=20, font=("Calibri", 12), bd='0')
-        self.demo_listbox.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
+        # Demonstration display area (next row, span across both columns)
+        self.demo_listbox = tk.Listbox(
+            mid_right_panel, height=10, bd=0, font=("Consolas", 16)
+        )
+        self.demo_listbox.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        
         # Create frame
-        frame = ttk.Frame(mid_right_panel, padding="10")
-        frame.pack(fill=tk.BOTH, expand=True)
+        frame = ttk.Frame(mid_right_panel,)
+        frame.grid(row=3, column=0, padx=5, pady=5)
         
         # Create buttons
-        ttk.Button(frame, text="|<<", command=self.first_page).grid(row=0, column=0)
-        ttk.Button(frame, text="<", command=self.prev_page).grid(row=0, column=1)
+        ttk.Button(frame, text="|<<", command=self.first_page, width=5).grid(row=3, column=0)
+        ttk.Button(frame, text="<", command=self.prev_page, width=5).grid(row=3, column=1)
         
         self.page_var = tk.StringVar()
         
-        ttk.Label(frame, textvariable=self.page_var).grid(row=0, column=2, padx=10)
+        ttk.Label(frame, textvariable=self.page_var).grid(row=3, column=2, padx=10)
         
-        ttk.Button(frame, text=">", command=self.next_page).grid(row=0, column=3)
-        ttk.Button(frame, text=">>|", command=self.last_page).grid(row=0, column=4)
+        ttk.Button(frame, text=">", command=self.next_page, width=5).grid(row=3, column=3)
+        ttk.Button(frame, text=">>|", command=self.last_page, width=5).grid(row=3, column=4)
 
         # Bottom right panel
         bottom_right_panel = ttk.Frame(right_panel)
-        bottom_right_panel.grid(row=2, column=0, padx=10, pady=10, sticky=tk.NSEW)
+        bottom_right_panel.grid(row=2, column=0, padx=10, pady=10)
 
-        ttk.Button(bottom_right_panel, text="Add To Player", command=self.view_demonstration).grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(bottom_right_panel, text="Delete Demonstration", command=self.delete_demonstration).grid(row=0, column=1, padx=5, pady=5)
-        ttk.Button(bottom_right_panel, text="Refresh", command=self.update_demo_list).grid(row=0, column=2, padx=5, pady=5)
+        ttk.Button(bottom_right_panel, text=" Add To Player ", command=self.view_demonstration).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(bottom_right_panel, text=" Delete ", command=self.delete_demonstration).grid(row=0, column=1, padx=5, pady=5)
         
         # Left panel
         left_panel = ttk.Frame(self.manage_tab, width=200, height=600)
@@ -259,7 +278,7 @@ class ImitationLearningGUI:
         self.total_pages = total_pages
         
         for demo in demo_list:
-            self.demo_listbox.insert(tk.END, demo)
+            self.demo_listbox.insert(tk.END, demo.split("/")[-1])
         self.update_page_display()
 
     def update_page_display(self):
@@ -286,7 +305,9 @@ class ImitationLearningGUI:
     def view_demonstration(self):
         selected_demo = self.demo_listbox.get(tk.ACTIVE)
         if selected_demo:
-            env_name, task_name, demo_id = selected_demo.split('/')
+            env_name = self.env_combobox_manage.get()
+            task_name = self.task_combobox_manage.get()
+            demo_id = selected_demo
             demo_data = self.data_manager.load_demonstrations(env_name, task_name, demo_id)
             self.playback.play_pause(demo_data)
         else:
@@ -296,7 +317,9 @@ class ImitationLearningGUI:
         selected_demo = self.demo_listbox.get(tk.ACTIVE)
         if selected_demo:
             if messagebox.askyesno("Delete Demonstration", f"Are you sure you want to delete the demonstration: {selected_demo}?"):
-                env_name, task_name, demo_id = selected_demo.split('/')
+                env_name = self.env_combobox_manage.get()
+                task_name = self.task_combobox_manage.get()
+                demo_id = selected_demo
                 self.data_manager.delete_demonstration(env_name, task_name, demo_id)
                 self.update_demo_list()
         else:

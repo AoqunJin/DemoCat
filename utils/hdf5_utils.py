@@ -1,8 +1,9 @@
 from functools import reduce
-import h5py
-import numpy as np
 import threading
 from datetime import datetime
+import h5py
+import numpy as np
+
 
 class HDF5DataManager:
     def __init__(self, file_path):        
@@ -39,10 +40,7 @@ class HDF5DataManager:
         -------
         None
         """
-        l = []
-        for key, value in demo_data.items():
-            if key != 'instruction': l.append(len(value))
-        min_l = reduce(min, l)
+        min_l = len(demo_data["action"])
         with self._lock:
             with h5py.File(self.file_path, 'a') as f:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -51,9 +49,27 @@ class HDF5DataManager:
                 for key, value in demo_data.items():
                     if key == 'instruction':
                         dt = h5py.string_dtype(encoding='utf-8')
-                        demo_group.create_dataset(key, data=value, dtype=dt,)
+                        demo_group.create_dataset(key, data=value, dtype=dt)
+
+                    elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                        dict_data = {}
+                        for sub_key in value[0].keys():
+                            stacked = np.stack([v[sub_key] for v in value[:min_l]])
+                            dict_data[sub_key] = stacked
+                            demo_group.create_dataset(
+                                f"{key}/{sub_key}", 
+                                data=stacked, 
+                                compression="gzip", 
+                                chunks=True
+                            )
+
                     else:
-                        demo_group.create_dataset(key, data=np.array(value[:min_l]), compression="gzip", chunks=True)
+                        demo_group.create_dataset(
+                            key, 
+                            data=np.array(value[:min_l]), 
+                            compression="gzip", 
+                            chunks=True
+                        )
 
     def load_demonstrations(self, env_name, task_name, timestamp):
         """
@@ -80,9 +96,19 @@ class HDF5DataManager:
             demonstrations = {}
             with h5py.File(self.file_path, 'r') as f:
                 demo_group = f[f"{env_name}/{task_name}/{timestamp}"]
+
                 for key in demo_group.keys():
                     if key == 'instruction':
                         demonstrations[key] = demo_group[key][()]
+                    elif isinstance(demo_group[key], h5py.Group):
+                        sub_keys = list(demo_group[key].keys())
+                        stacked_sub = [demo_group[key][sub_key][:] for sub_key in sub_keys]
+
+                        demonstrations[key] = [
+                            {sub_key: stacked_sub[i][j] if stacked_sub[i].ndim > 1 else stacked_sub[i][j] 
+                            for i, sub_key in enumerate(sub_keys)}
+                            for j in range(stacked_sub[0].shape[0])
+                        ]
                     else:
                         demonstrations[key] = demo_group[key][:]
             

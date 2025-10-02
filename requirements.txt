@@ -1,0 +1,7 @@
+opencv-python
+tkinter
+h5py
+Pillow
+imageio
+gym
+pygame

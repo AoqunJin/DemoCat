@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from utils.tools import resize_and_pad_to_square, trans
 
+
 class DemoPlayer:
     def __init__(self, master, demo_listbox):
         """
@@ -24,8 +25,8 @@ class DemoPlayer:
         self.demonstration_data = None
 
         # Create playback canvas
-        self.playback = tk.Canvas(master, width=500, height=500, bg='white')
-        self.playback.grid(row=0, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
+        self.playback = tk.Canvas(master, width=800, height=400, bg='white')
+        self.playback.grid(row=0, column=0, columnspan=5, padx=5, pady=5, sticky='nsew')
 
         # Create buttons
         button_frame = ttk.Frame(master)
@@ -42,7 +43,7 @@ class DemoPlayer:
         self.jump_to_end_button.grid(row=0, column=4, padx=5)
 
         # Show info
-        self.info_text = tk.Text(master, height=7, width=70, bd='0')
+        self.info_text = tk.Text(master, height=7, width=70, bd='0', font=("Consolas", 16))
         self.info_text.grid(row=2, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
         self.info_text.config(state=tk.DISABLED)
 
@@ -118,8 +119,22 @@ class DemoPlayer:
         """
 
         if self.current_frame < self.total_frames:
-            img = Image.fromarray(trans(self.demonstration_data['frames'][self.current_frame]))
-            img = resize_and_pad_to_square(img, 500)
+            frame = self.demonstration_data['frames'][self.current_frame]
+
+            if isinstance(frame, dict):
+                images = [resize_and_pad_to_square(Image.fromarray(trans(v)), 400) for v in frame.values()]
+                widths, heights = zip(*(img.size for img in images))
+                total_width = sum(widths)
+                max_height = max(heights)
+                new_img = Image.new('RGB', (total_width, max_height))
+                x_offset = 0
+                for img in images:
+                    new_img.paste(img, (x_offset, 0))
+                    x_offset += img.width
+                img = new_img
+            else:
+                img = resize_and_pad_to_square(Image.fromarray(trans(frame)), 400)
+
             img = ImageTk.PhotoImage(img)
             self.playback.create_image(0, 0, anchor=tk.NW, image=img)
             self.playback.image = img

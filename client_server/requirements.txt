@@ -1,5 +1,0 @@
-cryptography 
-pillow 
-numpy 
-requests 
-flask

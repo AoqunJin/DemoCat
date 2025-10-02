@@ -4,7 +4,8 @@ from tkinter import ttk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from utils.input_handler import InputHandler
-from utils.tools import resize_and_pad_to_square, trans, center_crop_and_resize
+from utils.tools import resize_and_pad_to_square, trans
+
 
 class DemonstrationCollector:
     def __init__(self, master, env_combobox, task_combobox, 
@@ -56,14 +57,14 @@ class DemonstrationCollector:
         action_frame.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky=(tk.W, tk.E))
 
         # Create canvas
-        self.canvas = tk.Canvas(left_panel, width=500, height=500, background="white")
+        self.canvas = tk.Canvas(left_panel, width=800, height=400, background="white")
         self.canvas.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
 
         # Create buttons
-        ttk.Button(action_frame, text="Start Environment", command=self.start_demonstration).pack(side=tk.LEFT, padx=5)
-        self.save_button = ttk.Button(action_frame, text="Save Demonstration", command=self.save_demonstration, state=tk.DISABLED)
+        ttk.Button(action_frame, text=" Start Environment ", command=self.start_demonstration).pack(side=tk.LEFT, padx=5)
+        self.save_button = ttk.Button(action_frame, text=" Save Demonstration ", command=self.save_demonstration, state=tk.DISABLED)
         self.save_button.pack(side=tk.LEFT, padx=5)
-        self.pause_button = ttk.Button(action_frame, text="Pause", command=self.pause, state=tk.DISABLED)
+        self.pause_button = ttk.Button(action_frame, text=" Pause ", command=self.pause, state=tk.DISABLED)
         self.pause_button.pack(side=tk.LEFT, padx=5)
         self.master.bind_all("<p>", self.pause)
         self.master.bind_all("<q>", self.start_demonstration)
@@ -99,9 +100,9 @@ class DemonstrationCollector:
         self.pause_button['state'] = tk.NORMAL
         self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": [], "instruction": ""}
         observation = self.task.reset()
-        img_array = center_crop_and_resize(self.task.render())
+        frame = self.task.render()
         self.demonstration_data["observation"].append(observation)
-        self.demonstration_data["frames"].append(img_array)
+        self.demonstration_data["frames"].append(frame)
 
         self.update_display()
         self.update_task_info()
@@ -129,13 +130,13 @@ class DemonstrationCollector:
                 action = self.input_handler.get_action()
                 (observation, reward, terminated, truncated, info), action = self.task.step(action)
                 done = terminated or truncated
-                img_array = center_crop_and_resize(self.task.render())
+                frame = self.task.render()
                 self.demonstration_data["observation"].append(observation)
                 self.demonstration_data["action"].append(action)
                 self.demonstration_data["reward"].append(reward)
                 self.demonstration_data["done"].append(done)
                 self.demonstration_data['instruction'] = self.task.task_description
-                self.demonstration_data["frames"].append(img_array)
+                self.demonstration_data["frames"].append(frame)
                 self.update_display()
 
             if done:
@@ -167,14 +168,29 @@ class DemonstrationCollector:
 
         This function updates the display of the current demonstration by
         rendering the current frame of the demonstration and displaying it
-        on the canvas.
+        on the canvas. If the frame is a dict, it concatenates all values
+        horizontally after resizing and padding each to square.
 
         Returns
         -------
         None
         """
-        img = Image.fromarray(trans(self.demonstration_data["frames"][-1]))
-        img = resize_and_pad_to_square(img, 500)
+        frame = self.demonstration_data["frames"][-1]
+
+        if isinstance(frame, dict):
+            images = [resize_and_pad_to_square(Image.fromarray(trans(v)), 400) for v in frame.values()]
+            widths, heights = zip(*(img.size for img in images))
+            total_width = sum(widths)
+            max_height = max(heights)
+            new_img = Image.new('RGB', (total_width, max_height))
+            x_offset = 0
+            for img in images:
+                new_img.paste(img, (x_offset, 0))
+                x_offset += img.width
+            img = new_img
+        else:
+            img = resize_and_pad_to_square(Image.fromarray(trans(frame)), 400)
+
         img = ImageTk.PhotoImage(img)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
         self.canvas.image = img

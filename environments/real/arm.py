@@ -1,29 +1,28 @@
 from .robotic_arm_package.robotic_arm import *
-import sys
 
 
 def init(joint=[45, 0, -120, 30, 90, 0]):
     def mcallback(data):
         print("MCallback")
-        # 判断接口类型
-        if data.codeKey == MOVEJ_CANFD_CB:  # 角度透传
-            print("透传结果:", data.errCode)
-            print("当前角度:", data.joint[0], data.joint[1], data.joint[2], data.joint[3], data.joint[4], data.joint[5])
-        elif data.codeKey == MOVEP_CANFD_CB:  # 位姿透传
-            print("透传结果:", data.errCode)
-            print("当前角度:", data.joint[0], data.joint[1], data.joint[2], data.joint[3], data.joint[4], data.joint[5])
-            print("当前位姿:", data.pose.position.x, data.pose.position.y, data.pose.position.z, data.pose.euler.rx,
+        # interface check
+        if data.codeKey == MOVEJ_CANFD_CB:  # joint
+            print("errCode:", data.errCode)
+            print("joint:", data.joint[0], data.joint[1], data.joint[2], data.joint[3], data.joint[4], data.joint[5])
+        elif data.codeKey == MOVEP_CANFD_CB:  # pose
+            print("errCode:", data.errCode)
+            print("joint:", data.joint[0], data.joint[1], data.joint[2], data.joint[3], data.joint[4], data.joint[5])
+            print("pose:", data.pose.position.x, data.pose.position.y, data.pose.position.z, data.pose.euler.rx,
                   data.pose.euler.ry, data.pose.euler.rz)
-        elif data.codeKey == FORCE_POSITION_MOVE_CB:  # 力位混合透传
-            print("透传结果:", data.errCode)
-            print("当前力度：", data.nforce)
+        elif data.codeKey == FORCE_POSITION_MOVE_CB:  # nforce
+            print("errCode: ", data.errCode)
+            print("nforce: ", data.nforce)
 
 
-    # 连接机械臂，注册回调函数
+    # connect arm
     callback = CANFD_Callback(mcallback)
     arm = Arm(RM65, "192.168.1.18", callback)
     
-    # 初始位置
+    # init pose
     arm.Set_Gripper_Release(200, block=False)
     assert not arm.Movej_Cmd(joint, 20, 0)
     return arm

@@ -23,14 +23,15 @@ def main():
     # Windows: vista, winnative, xpnative
     # Mac: aqua
     # on Linux unfortunately there isn't any native theme, they look like plain tk widgets
-    style.theme_use('clam')
-    font_settings = ("Helvetica", 12)
-    style.configure("TButton", foreground="black", font=font_settings, bg="white")
-    style.configure("TLabel", foreground="black", font=font_settings, bg="white")
-    style.configure("TCombobox", foreground="black", font=font_settings, bg="white")
-    style.configure("Custom", background="white", font=font_settings)
-    style.configure("TNotebook", background="white", font=font_settings)
-    style.configure("TFrame", background="white", font=font_settings)
+    # style.theme_use('clam')
+    font_settings = ("Consolas", 16)
+    
+    style.configure("TButton", foreground="black", background="white", font=font_settings)
+    style.configure("TLabel", foreground="black", background="white", font=font_settings)
+    style.configure("TCombobox", foreground="black", fieldbackground="white", font=font_settings)
+    style.configure("TFrame", background="white")
+    style.configure("TNotebook", background="white")
+    style.configure("TNotebook.Tab", background="white", foreground="black", font=font_settings)
 
     env_manager = EnvironmentManager()
     data_manager = HDF5DataManager("data/demonstrations/demos.hdf5")

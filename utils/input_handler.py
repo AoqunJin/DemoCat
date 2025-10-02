@@ -1,6 +1,5 @@
-# file: utils/input_handler.py
-
 import os
+
 
 class InputHandler:
     def __init__(self, master):
@@ -53,3 +52,4 @@ class InputHandler:
         self.key_pressed.clear()
         self.mouse_position = (0, 0)
         self.mouse_clicked = False
+        

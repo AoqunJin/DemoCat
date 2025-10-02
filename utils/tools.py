@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 import cv2
 
+
 def resize_and_pad_to_square(img, target_size):
     # Get the width and height of the image
     width, height = img.size
@@ -26,7 +27,8 @@ def resize_and_pad_to_square(img, target_size):
     
     return new_img
 
-def center_crop_and_resize(image, size=224):
+
+def center_crop_and_resize(image, size=256):
     # Get the height and width of the image
     height, width = image.shape[:2]
 
@@ -44,6 +46,7 @@ def center_crop_and_resize(image, size=224):
     resized_image = cv2.resize(cropped_image, (size, size))
 
     return resized_image
+
 
 def trans(np_array):
     # Change the red and blue channels

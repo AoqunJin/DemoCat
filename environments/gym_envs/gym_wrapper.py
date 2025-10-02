@@ -1,7 +1,6 @@
-# file: environments/gym_envs/gym_wrapper.py
-
 import gym
 from ..base_env import BaseEnv
+
 
 class GymEnvWrapper(BaseEnv):
     task_description = "Warning: please rewrite `task_description`."
@@ -30,6 +29,7 @@ class GymEnvWrapper(BaseEnv):
     def observation_space(self):
         return self.env.observation_space
 
+
 class CartPoleEnv(GymEnvWrapper):
     default_action = 0
     def __init__(self):
@@ -53,6 +53,7 @@ class CartPoleEnv(GymEnvWrapper):
         else:
             action = 1
         return self.env.step(action), action
+
 
 class MountainCarEnv(GymEnvWrapper):
     default_action = 2

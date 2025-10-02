@@ -1,7 +1,5 @@
-# file: environments/base_env.py
-
 from abc import ABC, abstractmethod
-import numpy as np
+
 
 class BaseEnv(ABC):
     @abstractmethod

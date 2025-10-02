@@ -1,30 +1,33 @@
 import importlib
 
+# Gym
 from environments.gym_envs.gym_wrapper import CartPoleEnv, MountainCarEnv
-from environments.metaworld.metaworld_env import (
-    Instruct,
-    ButtonPressTopdown,
-    ButtonPressTopdownWall,
-    ButtonPress,
-    ButtonPressWall,
-    CoffeeButton,
-    CoffeePull,
-    CoffeePush,
-    PlateSlide,
-    PlateSlideSide,
-    PlateSlideBack,
-    PlateSlideBackSide,
-    FaucetOpen,
-    FaucetClose,
-    PickPlaceWall,
-    PickPlace,
-    Push,
-    PushWall,
-    PushBack,
-    Sweep,
-    ReachWall
-)
-from environments.real.rm65_env import RM65Cube, RM65Kitchen
+# Real bot
+try:
+    from environments.real.rm65_env import RM65Cube
+    IMPORT_REALMAN = True
+except ImportError as e:
+    IMPORT_REALMAN = False
+# Meta-World
+try:
+    from environments.metaworld.metaworld_env import (
+        Reach, Push, PickPlace, DoorOpen, DrawerOpen, DrawerClose,
+        ButtonPressTopdown, PegInsertSide, WindowOpen, WindowClose
+    )
+    IMPORT_MT = True
+except ImportError as e:
+    IMPORT_MT = False
+# LIBERO
+try:
+    from environments.libero.libero_env import (
+        libero_object_task_0, libero_object_task_1, libero_object_task_2, libero_object_task_3, 
+        libero_object_task_4, libero_object_task_5, libero_object_task_6, libero_object_task_7, 
+        libero_object_task_8, libero_object_task_9
+    )
+    IMPORT_LIBERO = True
+except ImportError as e:
+    IMPORT_LIBERO = False
+    print(str(e))
 
     
 class EnvironmentManager:
@@ -33,32 +36,35 @@ class EnvironmentManager:
         self._register_default_environments()
 
     def _register_default_environments(self):
-        self.register_environment('metaworld')  # metaworld-20
-        self.register_task('metaworld', 'Instruct', Instruct)
-        self.register_task('metaworld', 'ButtonPressTopdown', ButtonPressTopdown)
-        self.register_task('metaworld', 'ButtonPressTopdownWall', ButtonPressTopdownWall)
-        self.register_task('metaworld', 'ButtonPress', ButtonPress)
-        self.register_task('metaworld', 'ButtonPressWall', ButtonPressWall)
-        self.register_task('metaworld', 'CoffeeButton', CoffeeButton)
-        self.register_task('metaworld', 'CoffeePull', CoffeePull)
-        self.register_task('metaworld', 'CoffeePush', CoffeePush)
-        self.register_task('metaworld', 'PlateSlide', PlateSlide)
-        self.register_task('metaworld', 'PlateSlideBack', PlateSlideBack)
-        self.register_task('metaworld', 'PlateSlideSide', PlateSlideSide)
-        self.register_task('metaworld', 'PlateSlideBackSide', PlateSlideBackSide)
-        self.register_task('metaworld', 'FaucetOpen', FaucetOpen)
-        self.register_task('metaworld', 'FaucetClose', FaucetClose)
-        self.register_task('metaworld', 'PickPlaceWall', PickPlaceWall)
-        self.register_task('metaworld', 'PickPlace', PickPlace)
-        self.register_task('metaworld', 'Push', Push)
-        self.register_task('metaworld', 'PushWall', PushWall)
-        self.register_task('metaworld', 'PushBack', PushBack)
-        self.register_task('metaworld', 'Sweep', Sweep)
-        self.register_task('metaworld', 'ReachWall', ReachWall)
+        if IMPORT_MT:
+            self.register_environment('metaworld_mt10')  # metaworld-mt10
+            self.register_task('metaworld_mt10', 'Reach', Reach)
+            self.register_task('metaworld_mt10', 'Push', Push)
+            self.register_task('metaworld_mt10', 'PickPlace', PickPlace)
+            self.register_task('metaworld_mt10', 'DoorOpen', DoorOpen)
+            self.register_task('metaworld_mt10', 'DrawerOpen', DrawerOpen)
+            self.register_task('metaworld_mt10', 'DrawerClose', DrawerClose)
+            self.register_task('metaworld_mt10', 'ButtonPressTopdown', ButtonPressTopdown)
+            self.register_task('metaworld_mt10', 'PegInsertSide', PegInsertSide)
+            self.register_task('metaworld_mt10', 'WindowOpen', WindowOpen)
+            self.register_task('metaworld_mt10', 'WindowClose', WindowClose)
         
-        self.register_environment('real')  # real-65
-        self.register_task('real', 'RM65Cube', RM65Cube)
-        self.register_task('real', 'RM65Kitchen', RM65Kitchen)
+        if IMPORT_LIBERO:
+            self.register_environment('libero_object')  # libero-object
+            self.register_task('libero_object', 'Task1', libero_object_task_0)
+            self.register_task('libero_object', 'Task2', libero_object_task_1)
+            self.register_task('libero_object', 'Task3', libero_object_task_2)
+            self.register_task('libero_object', 'Task4', libero_object_task_3)
+            self.register_task('libero_object', 'Task5', libero_object_task_4)
+            self.register_task('libero_object', 'Task6', libero_object_task_5)
+            self.register_task('libero_object', 'Task7', libero_object_task_6)
+            self.register_task('libero_object', 'Task8', libero_object_task_7)
+            self.register_task('libero_object', 'Task9', libero_object_task_8)
+            self.register_task('libero_object', 'Task10', libero_object_task_9)
+            
+        if IMPORT_REALMAN:
+            self.register_environment('real')  # real-65
+            self.register_task('real', 'RM65Cube', RM65Cube)
         
         self.register_environment('gym')  # gym-2
         self.register_task('gym', 'CartPole', CartPoleEnv)
