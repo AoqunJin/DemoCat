@@ -94,7 +94,7 @@ class LIBEROEnv(BaseEnv):
         obs_dict = self.env.reset()
         
         init_states = self.task_suite.get_task_init_states(self.task_id)
-        ri = random.randint(0, 50)  # Max=50
+        ri = random.randint(0, 49)  # Max=50
         obs_dict = self.env.set_init_state(init_states[ri])
         
         self.current_obs = obs_dict

@@ -39,7 +39,7 @@ class ImitationLearningGUI:
         
         self.current_page = 1
         self.total_pages = 1
-        self.page_size = 20
+        self.page_size = 10
 
         self.current_frame = 0
         self.total_frames = 0
@@ -137,11 +137,17 @@ class ImitationLearningGUI:
             bottom_left_panel, self.env_combobox, self.task_combobox, 
             self.env_manager, self.data_manager, self.demo_listbox, self.task_info_text
         )
-        # TODO
+        
+        # Control information display area
         self.control_info_text = tk.Text(bottom_right_panel, height=20, width=50, bd='0',
-                                         font=("Consolas", 16))
+                                        font=("Consolas", 16))
         self.control_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.control_info_text.config(state=tk.NORMAL)     
+
+        # Insert keybinding hints
+        key_hints = "Key Bindings:\n\nP - Pause\nQ - Start Demonstration\nE - Save Demonstration"
+
+        self.control_info_text.config(state="normal")
+        self.control_info_text.insert("1.0", key_hints)
 
         # Set default environment value and bind selection event
         default_env = self.env_manager.get_available_environments()[0]
