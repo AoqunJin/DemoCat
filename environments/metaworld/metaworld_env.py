@@ -40,11 +40,11 @@ class MetaWorldEnv(BaseEnv):
         return (obs, rew, done, truncated, info), action
 
     # def render(self):
-    #     return np.array(self.env.render())[::-1, ::-1, ::-1]
+    #     return np.array(self.env.render())[::-1, ::-1]
 
     def render(self):
-        return {"obs_agent": np.array(self.env.render())[::-1, ::-1, ::-1],
-                "obs_griper": np.array(self.hand_renderer.render("rgb_array"))[:, :, ::-1]}
+        return {"agent_view": np.array(self.env.render())[::-1, ::-1],
+                "gripper_view": np.array(self.hand_renderer.render("rgb_array"))}
 
     def close(self):
         self.env.close()
@@ -133,7 +133,7 @@ current_module = sys.modules[__name__]
 
 _classes = {}
 for task_key, instruction in MT_TASK_MAP.items():
-    cls = create_task_class(task_key, "Task Description: " + instruction)
+    cls = create_task_class(task_key, instruction)
     _classes[cls.__name__] = cls
     setattr(current_module, cls.__name__, cls)
 

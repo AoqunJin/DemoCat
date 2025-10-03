@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class BaseEnv(ABC):
     @abstractmethod
     def reset(self):
-        """Reset the environment to its initial state and returns an initial observation."""
+        """Reset the environment to its initial state and returns an initial state."""
         pass
 
     @abstractmethod
@@ -16,7 +16,7 @@ class BaseEnv(ABC):
             keys: A list of strings representing the keys to press.
 
         Returns:
-            A tuple of (observation, reward, done, truncated, info) and the action taken.
+            A tuple of (state, reward, done, truncated, info) and the action taken.
         """
         pass
 

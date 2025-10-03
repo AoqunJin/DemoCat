@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from utils.tools import resize_and_pad_to_square, trans
+from utils.tools import resize_and_pad_to_square
 
 
 class DemoPlayer:
@@ -100,7 +100,7 @@ class DemoPlayer:
 
     def play_demonstration(self):
         if self.demonstration_data:
-            self.total_frames = len(self.demonstration_data['frames'])
+            self.total_frames = len(self.demonstration_data['observation'])
             self.current_frame = 0
             self.update_frame()
 
@@ -119,10 +119,10 @@ class DemoPlayer:
         """
 
         if self.current_frame < self.total_frames:
-            frame = self.demonstration_data['frames'][self.current_frame]
+            frame = self.demonstration_data['observation'][self.current_frame]
 
             if isinstance(frame, dict):
-                images = [resize_and_pad_to_square(Image.fromarray(trans(v)), 400) for v in frame.values()]
+                images = [resize_and_pad_to_square(Image.fromarray(v), 400) for v in frame.values()]
                 widths, heights = zip(*(img.size for img in images))
                 total_width = sum(widths)
                 max_height = max(heights)
@@ -133,7 +133,7 @@ class DemoPlayer:
                     x_offset += img.width
                 img = new_img
             else:
-                img = resize_and_pad_to_square(Image.fromarray(trans(frame)), 400)
+                img = resize_and_pad_to_square(Image.fromarray(frame), 400)
 
             img = ImageTk.PhotoImage(img)
             self.playback.create_image(0, 0, anchor=tk.NW, image=img)
@@ -142,7 +142,7 @@ class DemoPlayer:
             self.info_text.config(state=tk.NORMAL)
             self.info_text.delete('1.0', tk.END)
             try:
-                instruction = self.demonstration_data['instruction'].decode().split("Task Description:")[1]
+                instruction = self.demonstration_data['instruction'].decode()
             except Exception:
                 pass
                 # instruction = self.demonstration_data['instruction'].decode()
@@ -150,7 +150,7 @@ class DemoPlayer:
             self.info_text.insert(tk.END, f"Action: {self.demonstration_data['action'][self.current_frame]}\n")
             self.info_text.insert(tk.END, f"Done: {self.demonstration_data['done'][self.current_frame]}\n")
             self.info_text.config(state=tk.DISABLED)
-            self.total_frames = len(self.demonstration_data['frames'])
+            self.total_frames = len(self.demonstration_data['observation'])
             
             if self.is_playing:
                 self.current_frame += 1

@@ -1,5 +1,4 @@
-# file: main.py
-
+import os
 import tkinter as tk
 from tkinter import ttk
 
@@ -25,6 +24,9 @@ def main():
     # on Linux unfortunately there isn't any native theme, they look like plain tk widgets
     # style.theme_use('clam')
     font_settings = ("Consolas", 16)
+    out_dir = "data/demonstrations"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     
     style.configure("TButton", foreground="black", background="white", font=font_settings)
     style.configure("TLabel", foreground="black", background="white", font=font_settings)
@@ -34,7 +36,7 @@ def main():
     style.configure("TNotebook.Tab", background="white", foreground="black", font=font_settings)
 
     env_manager = EnvironmentManager()
-    data_manager = HDF5DataManager("data/demonstrations/demos.hdf5")
+    data_manager = HDF5DataManager(out_dir)
     app = ImitationLearningGUI(root, env_manager, data_manager)
     root.mainloop()
 

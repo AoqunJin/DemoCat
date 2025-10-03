@@ -47,7 +47,7 @@ class LIBEROEnv(BaseEnv):
             "camera_widths": 256,
         }
         self.env = OffScreenRenderEnv(**env_args)
-        self.task_description = "Task Description: " + task.language
+        self.task_description = task.language
 
         # timer
         self.max_steps = max_steps
@@ -104,8 +104,8 @@ class LIBEROEnv(BaseEnv):
     def render(self):
         obs = self.current_obs
         return {
-            "obs_agent": obs["agentview_image"][::-1, ::-1],
-            "obs_griper": obs["robot0_eye_in_hand_image"],
+            "agent_view": obs["agentview_image"][::-1, ::-1],
+            "gripper_view": obs["robot0_eye_in_hand_image"],
         }
         
     @property

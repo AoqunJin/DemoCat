@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from utils.input_handler import InputHandler
-from utils.tools import resize_and_pad_to_square, trans
+from utils.tools import resize_and_pad_to_square
 
 
 class DemonstrationCollector:
@@ -98,11 +98,11 @@ class DemonstrationCollector:
         self.pause_button.configure(text="Pause")
         self.save_button['state'] = tk.NORMAL
         self.pause_button['state'] = tk.NORMAL
-        self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": [], "instruction": ""}
-        observation = self.task.reset()
+        self.demonstration_data = {"state": [], "action": [], "reward": [], "done": [], "observation": [], "instruction": ""}
+        state = self.task.reset()
         frame = self.task.render()
-        self.demonstration_data["observation"].append(observation)
-        self.demonstration_data["frames"].append(frame)
+        self.demonstration_data["state"].append(state)
+        self.demonstration_data["observation"].append(frame)
 
         self.update_display()
         self.update_task_info()
@@ -128,15 +128,15 @@ class DemonstrationCollector:
             done = False
             if not self.is_paused:
                 action = self.input_handler.get_action()
-                (observation, reward, terminated, truncated, info), action = self.task.step(action)
+                (state, reward, terminated, truncated, info), action = self.task.step(action)
                 done = terminated or truncated
                 frame = self.task.render()
-                self.demonstration_data["observation"].append(observation)
+                self.demonstration_data["state"].append(state)
                 self.demonstration_data["action"].append(action)
                 self.demonstration_data["reward"].append(reward)
                 self.demonstration_data["done"].append(done)
                 self.demonstration_data['instruction'] = self.task.task_description
-                self.demonstration_data["frames"].append(frame)
+                self.demonstration_data["observation"].append(frame)
                 self.update_display()
 
             if done:
@@ -175,10 +175,10 @@ class DemonstrationCollector:
         -------
         None
         """
-        frame = self.demonstration_data["frames"][-1]
+        frame = self.demonstration_data["observation"][-1]
 
         if isinstance(frame, dict):
-            images = [resize_and_pad_to_square(Image.fromarray(trans(v)), 400) for v in frame.values()]
+            images = [resize_and_pad_to_square(Image.fromarray(v), 400) for v in frame.values()]
             widths, heights = zip(*(img.size for img in images))
             total_width = sum(widths)
             max_height = max(heights)
@@ -189,7 +189,7 @@ class DemonstrationCollector:
                 x_offset += img.width
             img = new_img
         else:
-            img = resize_and_pad_to_square(Image.fromarray(trans(frame)), 400)
+            img = resize_and_pad_to_square(Image.fromarray(frame), 400)
 
         img = ImageTk.PhotoImage(img)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=img)
@@ -275,6 +275,6 @@ class DemonstrationCollector:
         """
         self.task_info_text.config(state=tk.NORMAL)
         self.task_info_text.delete('1.0', tk.END)
-        self.task_info_text.insert(tk.END, f"{info}")
+        self.task_info_text.insert(tk.END, f"Instruction: {info}")
         self.task_info_text.config(state=tk.DISABLED)
         

@@ -15,7 +15,7 @@ def reset_cube_description():
     position = ['top', 'left', 'right', 'front', 'back']
     c = random.sample(color, k=2)
     p = random.choice(position)
-    d = f"Task Description:\nTake the {c[0]} cube {p} the {c[1]} cube."
+    d = f"take the {c[0]} cube {p} the {c[1]} cube."
     return d
 
 

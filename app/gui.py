@@ -35,7 +35,7 @@ class ImitationLearningGUI:
         self.task = None
         self.is_demonstrating = False
         self.is_paused = False
-        self.demonstration_data = {"observation": [], "action": [], "reward": [], "done": [], "frames": []}
+        self.demonstration_data = {"state": [], "action": [], "reward": [], "done": [], "observation": []}
         
         self.current_page = 1
         self.total_pages = 1
@@ -148,6 +148,7 @@ class ImitationLearningGUI:
 
         self.control_info_text.config(state="normal")
         self.control_info_text.insert("1.0", key_hints)
+        self.control_info_text.config(state="disabled")
 
         # Set default environment value and bind selection event
         default_env = self.env_manager.get_available_environments()[0]

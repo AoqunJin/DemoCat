@@ -38,29 +38,29 @@ class EnvironmentManager:
     def _register_default_environments(self):
         if IMPORT_MT:
             self.register_environment('metaworld_mt10')  # metaworld-mt10
-            self.register_task('metaworld_mt10', 'Reach', Reach)
-            self.register_task('metaworld_mt10', 'Push', Push)
-            self.register_task('metaworld_mt10', 'PickPlace', PickPlace)
-            self.register_task('metaworld_mt10', 'DoorOpen', DoorOpen)
-            self.register_task('metaworld_mt10', 'DrawerOpen', DrawerOpen)
-            self.register_task('metaworld_mt10', 'DrawerClose', DrawerClose)
-            self.register_task('metaworld_mt10', 'ButtonPressTopdown', ButtonPressTopdown)
-            self.register_task('metaworld_mt10', 'PegInsertSide', PegInsertSide)
-            self.register_task('metaworld_mt10', 'WindowOpen', WindowOpen)
-            self.register_task('metaworld_mt10', 'WindowClose', WindowClose)
+            self.register_task('metaworld_mt10', 'reach', Reach)
+            self.register_task('metaworld_mt10', 'push', Push)
+            self.register_task('metaworld_mt10', 'pick_place', PickPlace)
+            self.register_task('metaworld_mt10', 'door_open', DoorOpen)
+            self.register_task('metaworld_mt10', 'drawer_open', DrawerOpen)
+            self.register_task('metaworld_mt10', 'drawer_close', DrawerClose)
+            self.register_task('metaworld_mt10', 'button_press_topdown', ButtonPressTopdown)
+            self.register_task('metaworld_mt10', 'peg_insert_side', PegInsertSide)
+            self.register_task('metaworld_mt10', 'window_open', WindowOpen)
+            self.register_task('metaworld_mt10', 'window_close', WindowClose)
         
         if IMPORT_LIBERO:
             self.register_environment('libero_object')  # libero-object
-            self.register_task('libero_object', 'Task1', libero_object_task_0)
-            self.register_task('libero_object', 'Task2', libero_object_task_1)
-            self.register_task('libero_object', 'Task3', libero_object_task_2)
-            self.register_task('libero_object', 'Task4', libero_object_task_3)
-            self.register_task('libero_object', 'Task5', libero_object_task_4)
-            self.register_task('libero_object', 'Task6', libero_object_task_5)
-            self.register_task('libero_object', 'Task7', libero_object_task_6)
-            self.register_task('libero_object', 'Task8', libero_object_task_7)
-            self.register_task('libero_object', 'Task9', libero_object_task_8)
-            self.register_task('libero_object', 'Task10', libero_object_task_9)
+            self.register_task('libero_object', 'task0', libero_object_task_0)
+            self.register_task('libero_object', 'task1', libero_object_task_1)
+            self.register_task('libero_object', 'task2', libero_object_task_2)
+            self.register_task('libero_object', 'task3', libero_object_task_3)
+            self.register_task('libero_object', 'task4', libero_object_task_4)
+            self.register_task('libero_object', 'task5', libero_object_task_5)
+            self.register_task('libero_object', 'task6', libero_object_task_6)
+            self.register_task('libero_object', 'task7', libero_object_task_7)
+            self.register_task('libero_object', 'task8', libero_object_task_8)
+            self.register_task('libero_object', 'task9', libero_object_task_9)
             
         if IMPORT_REALMAN:
             self.register_environment('real')  # real-65

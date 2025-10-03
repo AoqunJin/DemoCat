@@ -1,24 +1,28 @@
-from functools import reduce
 import threading
 from datetime import datetime
 import h5py
 import numpy as np
+import os
 
 
 class HDF5DataManager:
-    def __init__(self, file_path):        
+    def __init__(self, root_dir):        
         """
         Constructor for HDF5DataManager.
 
         Parameters
         ----------
-        file_path : str
-            The path to the HDF5 file to store the data in.
-
+        root_dir : str
+            The directory where HDF5 files will be stored.
         """
-        self.file_path = file_path
+        self.root_dir = root_dir
+        os.makedirs(root_dir, exist_ok=True)
         self._lock = threading.Lock()
-        # TODO Add cache self._cache = {}
+
+    def _get_file_path(self, env_name, task_name):
+        """Return HDF5 file path for given env/task"""
+        filename = f"{env_name}_{task_name}.hdf5"
+        return os.path.join(self.root_dir, filename)
 
     def save_demonstration(self, env_name: str, task_name: str, demo_data):
         """
@@ -27,24 +31,15 @@ class HDF5DataManager:
         Parameters
         ----------
         env_name : str
-            The name of the environment.
         task_name : str
-            The name of the task.
         demo_data : dict
-            A dictionary containing the demonstration data. The keys should be
-            the names of the data, and the values should be the data itself. If
-            the data is a string, it should be stored under the key
-            'instruction'.
-
-        Returns
-        -------
-        None
         """
         min_l = len(demo_data["action"])
         with self._lock:
-            with h5py.File(self.file_path, 'a') as f:
+            file_path = self._get_file_path(env_name, task_name)
+            with h5py.File(file_path, 'a') as f:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                demo_group = f.require_group(f"{env_name}/{task_name}/{timestamp}")
+                demo_group = f.require_group(timestamp)
                 
                 for key, value in demo_data.items():
                     if key == 'instruction':
@@ -52,17 +47,14 @@ class HDF5DataManager:
                         demo_group.create_dataset(key, data=value, dtype=dt)
 
                     elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
-                        dict_data = {}
                         for sub_key in value[0].keys():
                             stacked = np.stack([v[sub_key] for v in value[:min_l]])
-                            dict_data[sub_key] = stacked
                             demo_group.create_dataset(
                                 f"{key}/{sub_key}", 
                                 data=stacked, 
                                 compression="gzip", 
                                 chunks=True
                             )
-
                     else:
                         demo_group.create_dataset(
                             key, 
@@ -74,28 +66,12 @@ class HDF5DataManager:
     def load_demonstrations(self, env_name, task_name, timestamp):
         """
         Load a demonstration from the HDF5 file.
-
-        Parameters
-        ----------
-        env_name : str
-            The name of the environment.
-        task_name : str
-            The name of the task.
-        timestamp : str
-            The timestamp of the demonstration.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the demonstration data. The keys should be
-            the names of the data, and the values should be the data itself. If
-            the data is a string, it should be stored under the key
-            'instruction'.
         """
+        file_path = self._get_file_path(env_name, task_name)
         with self._lock:
             demonstrations = {}
-            with h5py.File(self.file_path, 'r') as f:
-                demo_group = f[f"{env_name}/{task_name}/{timestamp}"]
+            with h5py.File(file_path, 'r') as f:
+                demo_group = f[timestamp]
 
                 for key in demo_group.keys():
                     if key == 'instruction':
@@ -115,45 +91,28 @@ class HDF5DataManager:
             return demonstrations
 
     def delete_demonstration(self, env_name, task_name, demo_id):
+        file_path = self._get_file_path(env_name, task_name)
         with self._lock:
-            with h5py.File(self.file_path, 'a') as f:
-                del f[f"{env_name}/{task_name}/{demo_id}"]
+            with h5py.File(file_path, 'a') as f:
+                del f[demo_id]
 
     def get_demonstration_list(self, env_name, task_name, page=1, page_size=10):
         """
-        Get a list of demonstrations in the given environment and task.
-
-        Parameters
-        ----------
-        env_name : str
-            The name of the environment.
-        task_name : str
-            The name of the task.
-        page : int, optional
-            The page number to load, by default 1
-        page_size : int, optional
-            The number of demonstrations to load per page, by default 10
-
-        Returns
-        -------
-        list
-            A list of demonstration identifiers, each in the format
-            'env_name/task_name/timestamp'.
-        int
-            The total number of pages of demonstrations available.
+        Get a list of demonstrations in the given env/task file.
         """
+        file_path = self._get_file_path(env_name, task_name)
         with self._lock:
             demo_list = []
             try:
-                with h5py.File(self.file_path, 'r') as f:
+                with h5py.File(file_path, 'r') as f:
+                    k = list(f.keys())
                     index = (page - 1) * page_size
-                    k = list(f[env_name][task_name].keys())
                     for i, timestamp in enumerate(k):
                         if i < index:
                             continue
                         if i >= index + page_size:
                             break
-                        demo_list.append(f"{env_name}/{task_name}/{timestamp}")
+                        demo_list.append(timestamp)
             except FileNotFoundError as e:
                 print(e)
                 return [], 1
@@ -161,4 +120,5 @@ class HDF5DataManager:
                 print(e)
                 return [], 1
             return demo_list, (len(k) - 1) // page_size + 1
+
             

@@ -26,8 +26,8 @@ class GymEnvWrapper(BaseEnv):
         return self.env.action_space
 
     @property
-    def observation_space(self):
-        return self.env.observation_space
+    def state_space(self):
+        return self.env.state_space
 
 
 class CartPoleEnv(GymEnvWrapper):
@@ -46,7 +46,7 @@ class CartPoleEnv(GymEnvWrapper):
             keys: A list of strings representing the keys to press.
 
         Returns:
-            A tuple of (observation, reward, done, truncated, info) and the action taken.
+            A tuple of (state, reward, done, truncated, info) and the action taken.
         """
         if 'Left' in keys:
             action = 0

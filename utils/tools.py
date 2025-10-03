@@ -46,12 +46,3 @@ def center_crop_and_resize(image, size=256):
     resized_image = cv2.resize(cropped_image, (size, size))
 
     return resized_image
-
-
-def trans(np_array):
-    # Change the red and blue channels
-    # Red channel: swapped_array[:, :, 0]
-    # Blue channel: swapped_array[:, :, 2]
-    swapped_array = np.copy(np_array)
-    swapped_array[:, :, [0, 2]] = swapped_array[:, :, [2, 0]]
-    return swapped_array

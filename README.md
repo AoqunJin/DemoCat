@@ -53,7 +53,7 @@ pip install -e .
 To launch the GUI for human demonstration collection:
 
 ```bash
-python human_gui.py
+python gui.py
 ```
 
 This will open the main interface, which includes two primary modules:
