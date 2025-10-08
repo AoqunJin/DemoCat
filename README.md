@@ -1,6 +1,6 @@
 # DemoCat
 
-A tool based on applications and scripts for collecting human demonstration data from simulated or physical environments.
+A tool based application for collecting human demonstration data from simulated and real-world environments.
 
 ![collection](assets/libero_collecter.png)
 
